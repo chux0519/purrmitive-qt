@@ -10,6 +10,7 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QScreen>
 #include <QScrollArea>
 #include <QStandardPaths>
 #include <QStatusBar>
@@ -51,6 +52,8 @@ MainWindow::MainWindow()
 
   // init actions
   createActions();
+
+  resize(QGuiApplication::primaryScreen()->availableSize() * 3 / 5);
 }
 
 bool MainWindow::loadImage(const QString &file) {
@@ -98,5 +101,6 @@ void MainWindow::setImage(const QImage &image) {
   }
   _image_label->setPixmap(QPixmap::fromImage(_image));
   _scroll_area->setVisible(true);
+  _scroll_area->setWidgetResizable(true);
   _image_label->adjustSize();
 }
