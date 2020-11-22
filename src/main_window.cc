@@ -1,6 +1,7 @@
 #include "main_window.h"
 
 #include <QColorSpace>
+#include <QDebug>
 #include <QDir>
 #include <QFileDialog>
 #include <QGuiApplication>
@@ -16,6 +17,7 @@
 #include <QStatusBar>
 
 namespace {
+
 void initImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode mode) {
   static bool first_dialog = true;
   if (first_dialog) {
@@ -35,6 +37,11 @@ void initImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode mode) {
   dialog.selectMimeTypeFilter("image/jpeg");
   if (mode == QFileDialog::AcceptSave) dialog.setDefaultSuffix("png");
 }
+
+QSize getInitialWindowSize() {
+  return QGuiApplication::primaryScreen()->availableSize() * 3 / 5;
+}
+
 }  // namespace
 
 MainWindow::MainWindow()
@@ -53,7 +60,7 @@ MainWindow::MainWindow()
   // init actions
   createActions();
 
-  resize(QGuiApplication::primaryScreen()->availableSize() * 3 / 5);
+  resize(getInitialWindowSize());
 }
 
 bool MainWindow::loadImage(const QString &file) {
@@ -67,6 +74,7 @@ bool MainWindow::loadImage(const QString &file) {
             .arg(QDir::toNativeSeparators(file), reader.errorString()));
   }
 
+  resizeImageWindow(img);
   setImage(img);
   setWindowFilePath(file);
   const QString message = tr("Opened \"%1\", %2x%3, Depth: %4")
@@ -91,6 +99,23 @@ void MainWindow::open() {
 
   while (dialog.exec() == QDialog::Accepted &&
          !loadImage(dialog.selectedFiles().first())) {
+  }
+}
+
+void MainWindow::resizeImageWindow(const QImage &image) {
+  // resize the window size
+  int w = image.width();
+  int h = image.height();
+  QSize screen_size = getInitialWindowSize();
+  int screen_w = screen_size.width();
+  int screen_h = screen_size.height();
+
+  int h1 = int(double(h * screen_w) / double(w));
+  if (h1 <= screen_h) {
+    resize(screen_w, h1);
+  } else {
+    int w1 = int(double(w * screen_h) / double(h));
+    resize(w1, screen_h);
   }
 }
 

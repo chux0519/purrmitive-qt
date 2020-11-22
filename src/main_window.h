@@ -22,6 +22,7 @@ class MainWindow : public QMainWindow {
  private:
   void createActions();
   void setImage(const QImage &image);
+  void resizeImageWindow(const QImage &image);
 
   QImage _image;
   QLabel *_image_label;
