@@ -4,6 +4,7 @@
 #include <QMainWindow>
 
 #include "purrmitive.h"
+#include "setting_dialog.h"
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -30,5 +31,6 @@ class MainWindow : public QMainWindow {
   QImage _image;
   QLabel *_image_label;
   QScrollArea *_scroll_area;
+  SettingDialog *_setting_dialog;
   PurrmitiveParam _param;
 };

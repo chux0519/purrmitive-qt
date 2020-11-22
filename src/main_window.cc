@@ -11,6 +11,7 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QScreen>
 #include <QScrollArea>
 #include <QStandardPaths>
@@ -47,7 +48,9 @@ QSize getInitialWindowSize() {
 }  // namespace
 
 MainWindow::MainWindow()
-    : _image_label(new QLabel), _scroll_area(new QScrollArea) {
+    : _image_label(new QLabel),
+      _scroll_area(new QScrollArea),
+      _setting_dialog(new SettingDialog(&_param, _image)) {
   // set central
   _image_label->setBackgroundRole(QPalette::Base);
   _image_label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
@@ -85,6 +88,7 @@ bool MainWindow::loadImage(const QString &file) {
                               .arg(img.height())
                               .arg(img.depth());
   statusBar()->showMessage(message);
+
   return true;
 }
 
@@ -93,6 +97,8 @@ void MainWindow::createActions() {
   QAction *open_action =
       file_menu->addAction(tr("&Open"), this, &MainWindow::open);
   open_action->setShortcut(QKeySequence::Open);
+  connect(_setting_dialog->_thumbnail_selector, &QPushButton::released, this,
+          &MainWindow::open);
 
   QMenu *edit_menu = menuBar()->addMenu(tr("&Setting"));
   edit_menu->addAction(tr("&Purrmitive Parameters"), this,
@@ -106,12 +112,11 @@ void MainWindow::open() {
   while (dialog.exec() == QDialog::Accepted &&
          !loadImage(dialog.selectedFiles().first())) {
   }
+
+  _setting_dialog->updateImage(_image);
 }
 
-void MainWindow::openSetting() {
-  SettingDialog dialog(&_param);
-  dialog.exec();
-}
+void MainWindow::openSetting() { _setting_dialog->exec(); }
 
 void MainWindow::resizeImageWindow(const QImage &image) {
   // resize the window size
