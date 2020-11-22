@@ -3,6 +3,8 @@
 #include <QImage>
 #include <QMainWindow>
 
+#include "purrmitive.h"
+
 QT_BEGIN_NAMESPACE
 class QAction;
 class QMenu;
@@ -18,6 +20,7 @@ class MainWindow : public QMainWindow {
 
  private slots:
   void open();
+  void openSetting();
 
  private:
   void createActions();
@@ -27,4 +30,5 @@ class MainWindow : public QMainWindow {
   QImage _image;
   QLabel *_image_label;
   QScrollArea *_scroll_area;
+  PurrmitiveParam _param;
 };

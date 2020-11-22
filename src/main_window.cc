@@ -16,6 +16,8 @@
 #include <QStandardPaths>
 #include <QStatusBar>
 
+#include "setting_dialog.h"
+
 namespace {
 
 void initImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode mode) {
@@ -91,6 +93,10 @@ void MainWindow::createActions() {
   QAction *open_action =
       file_menu->addAction(tr("&Open"), this, &MainWindow::open);
   open_action->setShortcut(QKeySequence::Open);
+
+  QMenu *edit_menu = menuBar()->addMenu(tr("&Setting"));
+  edit_menu->addAction(tr("&Purrmitive Parameters"), this,
+                       &MainWindow::openSetting);
 }
 
 void MainWindow::open() {
@@ -100,6 +106,11 @@ void MainWindow::open() {
   while (dialog.exec() == QDialog::Accepted &&
          !loadImage(dialog.selectedFiles().first())) {
   }
+}
+
+void MainWindow::openSetting() {
+  SettingDialog dialog(&_param);
+  dialog.exec();
 }
 
 void MainWindow::resizeImageWindow(const QImage &image) {
