@@ -1,6 +1,5 @@
 #include "main_window.h"
 
-#include <QColorSpace>
 #include <QDebug>
 #include <QDir>
 #include <QFileDialog>
@@ -137,9 +136,6 @@ void MainWindow::resizeImageWindow(const QImage &image) {
 
 void MainWindow::setImage(const QImage &image) {
   _image = image;
-  if (_image.colorSpace().isValid()) {
-    _image.convertToColorSpace(QColorSpace::SRgb);
-  }
   _image_label->setPixmap(QPixmap::fromImage(_image));
   _scroll_area->setVisible(true);
   _scroll_area->setWidgetResizable(true);
