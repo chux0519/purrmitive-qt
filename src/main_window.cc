@@ -1,20 +1,7 @@
 #include "main_window.h"
 
 #include <QDebug>
-#include <QDir>
-#include <QFileDialog>
-#include <QGuiApplication>
-#include <QImageReader>
-#include <QImageWriter>
-#include <QLabel>
-#include <QMenu>
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QPushButton>
-#include <QScreen>
-#include <QScrollArea>
-#include <QStandardPaths>
-#include <QStatusBar>
+#include <QtWidgets>
 
 #include "setting_dialog.h"
 
