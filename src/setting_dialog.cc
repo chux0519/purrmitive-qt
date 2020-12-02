@@ -74,9 +74,11 @@ void SettingDialog::createUpGroupBox() {
 void SettingDialog::createDownGroupBox() {
   _downGroupBox = new QGroupBox();
   QGridLayout* layout = new QGridLayout;
+
+  // 1st row
+  QHBoxLayout* hlayout1 = new QHBoxLayout;
   _alpha_box = new QCheckBox();
   _alpha_box->setChecked(false);
-  _alpha_label = new QLabel(tr("Shape alpha: "));
   _alpha_spin = new QSpinBox();
   _alpha_spin->setEnabled(false);
   _alpha_spin->setMaximum(255);
@@ -92,10 +94,19 @@ void SettingDialog::createDownGroupBox() {
           &SettingDialog::setAlphaBySlider);
   connect(_alpha_spin, QOverload<int>::of(&QSpinBox::valueChanged), this,
           &SettingDialog::setAlphaBySpinBox);
-  layout->addWidget(_alpha_box, 0, 0, Qt::AlignRight);
-  layout->addWidget(_alpha_label, 0, 1);
-  layout->addWidget(_alpha_spin, 0, 2);
-  layout->addWidget(_alpha_slider, 0, 3, 1, 2);
+  hlayout1->addWidget(_alpha_box);
+  hlayout1->addWidget(new QLabel(tr("Shape alpha: ")));
+  layout->addLayout(hlayout1, 0, 0, Qt::AlignRight);
+  layout->addWidget(_alpha_spin, 0, 1);
+  layout->addWidget(_alpha_slider, 0, 2, 1, 2);
+
+  // 2nd row
+  _count_spin = new QSpinBox();
+  _count_spin->setValue(100);
+  layout->addWidget(new QLabel(tr("Shape number: ")), 1, 0, Qt::AlignRight);
+  layout->addWidget(_count_spin, 1, 1);
+  connect(_count_spin, QOverload<int>::of(&QSpinBox::valueChanged), this,
+          &SettingDialog::setCount);
 
   // init default
   int init_alpha = 128;
@@ -103,6 +114,8 @@ void SettingDialog::createDownGroupBox() {
 
   _downGroupBox->setLayout(layout);
 }
+
+void SettingDialog::setCount(int val) { _param->count = val; }
 
 void SettingDialog::setAlphaBySpinBox(int val) {
   int percent = round(double(val * 100) / (double)256);

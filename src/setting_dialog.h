@@ -31,6 +31,7 @@ class SettingDialog : public QDialog {
   void setMode(int mode);
   void setAlphaBySpinBox(int val);
   void setAlphaBySlider(int val);
+  void setCount(int val);
 
   QGroupBox* _upGroupBox;
   QGroupBox* _upLeftGroupBox;
@@ -46,9 +47,10 @@ class SettingDialog : public QDialog {
   QPushButton* _modesButtons[9];
   // bottomleft
   QCheckBox* _alpha_box;
-  QLabel* _alpha_label;
   QSpinBox* _alpha_spin;
   QSlider* _alpha_slider;
+
+  QSpinBox* _count_spin;
 
   PurrmitiveParam* _param;
 
