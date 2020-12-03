@@ -2,7 +2,7 @@
 
 #include <QDialog>
 
-#include "purrmitive.h"
+#include "rust_bridge.h"
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -32,6 +32,8 @@ class SettingDialog : public QDialog {
   void setAlphaBySpinBox(int val);
   void setAlphaBySlider(int val);
   void setCount(int val);
+  void setDefaultParams();
+  void confirm();
 
   QGroupBox* _upGroupBox;
   QGroupBox* _upLeftGroupBox;

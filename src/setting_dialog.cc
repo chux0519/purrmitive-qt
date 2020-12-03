@@ -18,7 +18,8 @@ SettingDialog::SettingDialog(PurrmitiveParam* param, const QImage& img)
 
   _buttonBox =
       new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-  connect(_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+  connect(_buttonBox, &QDialogButtonBox::accepted, this,
+          &SettingDialog::confirm);
   connect(_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
   QVBoxLayout* mainLayout = new QVBoxLayout;
@@ -28,6 +29,27 @@ SettingDialog::SettingDialog(PurrmitiveParam* param, const QImage& img)
   mainLayout->addWidget(_buttonBox);
   setLayout(mainLayout);
   setWindowTitle(tr("Purrmitive Settings"));
+  setDefaultParams();
+}
+
+void SettingDialog::confirm() {
+  qDebug() << "alpha: " << _param->alpha << ", ";
+  qDebug() << "count: " << _param->count << ", ";
+  qDebug() << "input: " << _param->input << ", ";
+  qDebug() << "mode: " << _param->mode << ", ";
+  qDebug() << "resize: " << _param->resize << ", ";
+  qDebug() << "size: " << _param->size << ", ";
+  this->accept();
+}
+
+void SettingDialog::setDefaultParams() {
+  // init default
+  int default_alpha = 128, default_count = 100, default_resize = 256,
+      default_size = 512;
+  _alpha_spin->setValue(default_alpha);
+  _count_spin->setValue(default_count);
+  _param->resize = default_resize;
+  _param->size = default_size;
 }
 
 void SettingDialog::updateImage(const QImage& img) {
@@ -102,15 +124,11 @@ void SettingDialog::createDownGroupBox() {
 
   // 2nd row
   _count_spin = new QSpinBox();
-  _count_spin->setValue(100);
+  _count_spin->setMaximum(65535);
   layout->addWidget(new QLabel(tr("Shape number: ")), 1, 0, Qt::AlignRight);
   layout->addWidget(_count_spin, 1, 1);
   connect(_count_spin, QOverload<int>::of(&QSpinBox::valueChanged), this,
           &SettingDialog::setCount);
-
-  // init default
-  int init_alpha = 128;
-  _alpha_spin->setValue(init_alpha);
 
   _downGroupBox->setLayout(layout);
 }

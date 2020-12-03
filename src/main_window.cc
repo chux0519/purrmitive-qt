@@ -75,6 +75,8 @@ bool MainWindow::loadImage(const QString &file) {
                               .arg(img.depth());
   statusBar()->showMessage(message);
 
+  _input = file.toStdString();
+  _param.input = _input.c_str();
   return true;
 }
 

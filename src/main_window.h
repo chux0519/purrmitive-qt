@@ -3,7 +3,7 @@
 #include <QImage>
 #include <QMainWindow>
 
-#include "purrmitive.h"
+#include "rust_bridge.h"
 #include "setting_dialog.h"
 
 QT_BEGIN_NAMESPACE
@@ -32,5 +32,6 @@ class MainWindow : public QMainWindow {
   QLabel *_image_label;
   QScrollArea *_scroll_area;
   SettingDialog *_setting_dialog;
+  std::string _input;
   PurrmitiveParam _param;
 };
