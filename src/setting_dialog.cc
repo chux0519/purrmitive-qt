@@ -39,6 +39,8 @@ void SettingDialog::confirm() {
   qDebug() << "mode: " << _param->mode << ", ";
   qDebug() << "resize: " << _param->resize << ", ";
   qDebug() << "size: " << _param->size << ", ";
+  // TODO: fire a signal to main_window, main_window should hold a worker thread
+  // for this, then init rust side, get bg at outside
   this->accept();
 }
 

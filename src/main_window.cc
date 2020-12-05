@@ -77,6 +77,7 @@ bool MainWindow::loadImage(const QString &file) {
 
   _input = file.toStdString();
   _param.input = _input.c_str();
+
   return true;
 }
 
@@ -102,6 +103,7 @@ void MainWindow::open() {
   }
 
   _setting_dialog->updateImage(_image);
+  _controller.init(&_param);
 }
 
 void MainWindow::openSetting() { _setting_dialog->exec(); }

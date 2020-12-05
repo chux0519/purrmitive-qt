@@ -2,7 +2,7 @@ use purrmitive::core::*;
 use purrmitive::graphics::*;
 use purrmitive::*;
 
-use std::ffi::CStr;
+use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 
 use env_logger::Builder;
@@ -58,23 +58,45 @@ pub unsafe extern "C" fn purrmitive_init(param: *const PurrmitiveParam) {
     let input = CStr::from_ptr((*param).input)
         .to_string_lossy()
         .into_owned();
+    info!("input: {}", input);
     let ctx = PurrContext::new(input, (*param).resize, (*param).size, (*param).alpha, None);
-    let model = PurrHillClimbModel::new(ctx, 1000, 16, 100);
-    match MODEL.set(model) {
-        Ok(()) => {}
-        Err(e) => error!("Failed to init model: {:?}", e),
-    };
+    match MODEL.get_mut() {
+        Some(m) => {
+            // reset
+            m.reset(ctx, 1000, 16, 100);
+        }
+        None => {
+            let model = PurrHillClimbModel::new(ctx, 1000, 16, 100);
+            match MODEL.set(model) {
+                Ok(()) => {}
+                Err(_) => error!("Failed to create model!"),
+            };
+        }
+    }
 
-    let runner = model_runner!(
-        (*param).mode,
-        (*param).count,
-        num_cpus::get() as u32,
-        create_cb
-    );
-    match RUNNER.set(runner) {
-        Ok(()) => {}
-        Err(_) => error!("Failed to init runner!"),
-    };
+    // if not runner, new one
+    match RUNNER.get() {
+        Some(_) => {}
+        None => {
+            let runner = model_runner!(
+                (*param).mode,
+                (*param).count,
+                num_cpus::get() as u32,
+                create_cb
+            );
+            match RUNNER.set(runner) {
+                Ok(()) => {}
+                Err(_) => error!("Failed to create runner!"),
+            };
+        }
+    }
+    match RUNNER.get_mut() {
+        Some(r) => {
+            // init or reinit
+            r.init(MODEL.get_mut().unwrap());
+        }
+        None => error!("Failed to init runner!"),
+    }
 }
 
 #[no_mangle]
@@ -128,12 +150,23 @@ pub unsafe extern "C" fn purrmitive_get_bg() -> PurrmitiveColor {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn purrmitive_get_last_shape() -> *const u8 {
+// this function will return ownership of the C str, should be freed later
+pub unsafe extern "C" fn purrmitive_get_last_shape() -> *mut c_char {
     match RUNNER.get() {
-        Some(r) => r.get_last_shape().as_ptr(),
+        Some(r) => CString::new(r.get_last_shape()).unwrap().into_raw(),
         None => {
             error!("No frame found: Runner is not found");
-            "".as_ptr()
+            CString::new("").unwrap().into_raw()
         }
     }
+}
+
+#[no_mangle]
+pub extern "C" fn purrmitive_free_str(s: *mut c_char) {
+    unsafe {
+        if s.is_null() {
+            return;
+        }
+        CString::from_raw(s)
+    };
 }

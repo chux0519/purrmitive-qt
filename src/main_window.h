@@ -34,4 +34,5 @@ class MainWindow : public QMainWindow {
   SettingDialog *_setting_dialog;
   std::string _input;
   PurrmitiveParam _param;
+  PurrmitiveController _controller;
 };

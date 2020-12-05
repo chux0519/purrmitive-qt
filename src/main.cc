@@ -7,6 +7,7 @@ int main(int argc, char *argv[]) {
   QCoreApplication::setOrganizationName("Hexyoungs");
   QCoreApplication::setApplicationName("Purrmitive");
   QCoreApplication::setApplicationVersion("1.0.0");
+  registerPurrmitiveMetaTypes();
 
   MainWindow mainWin;
 

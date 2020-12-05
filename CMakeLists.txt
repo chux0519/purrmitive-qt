@@ -23,7 +23,7 @@ endif()
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 include_directories(src deps)
-file(GLOB SOURCES src/*.cc)
+file(GLOB SOURCES src/*.cc src/rust_bridge.h)
 
 add_executable(purrmitive
     ${SOURCES}
