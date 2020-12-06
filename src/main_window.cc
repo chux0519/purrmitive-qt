@@ -104,6 +104,8 @@ void MainWindow::open() {
 
   _setting_dialog->updateImage(_image);
   _controller.init(&_param);
+  _preview = new Preview(this);
+  setCentralWidget(_preview);
 }
 
 void MainWindow::openSetting() { _setting_dialog->exec(); }

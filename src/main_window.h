@@ -3,6 +3,7 @@
 #include <QImage>
 #include <QMainWindow>
 
+#include "preview.h"
 #include "rust_bridge.h"
 #include "setting_dialog.h"
 
@@ -32,6 +33,7 @@ class MainWindow : public QMainWindow {
   QLabel *_image_label;
   QScrollArea *_scroll_area;
   SettingDialog *_setting_dialog;
+  Preview *_preview;
   std::string _input;
   PurrmitiveParam _param;
   PurrmitiveController _controller;

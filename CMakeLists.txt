@@ -20,7 +20,7 @@ if(NOT EXISTS ${PURR_BINDING_LIB_PATH})
       execute_process(COMMAND cargo build --release WORKING_DIRECTORY ${PURR_BINDING_ROOT})
 endif()
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Widgets Svg REQUIRED)
 
 include_directories(src deps)
 file(GLOB SOURCES src/*.cc src/rust_bridge.h)
@@ -29,4 +29,4 @@ add_executable(purrmitive
     ${SOURCES}
 )
 
-target_link_libraries(purrmitive Qt5::Widgets purrmitive_rust)
+target_link_libraries(purrmitive Qt5::Widgets Qt5::Svg purrmitive_rust)
