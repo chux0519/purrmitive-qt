@@ -36,7 +36,8 @@ QSize getInitialWindowSize() {
 MainWindow::MainWindow()
     : _image_label(new QLabel),
       _scroll_area(new QScrollArea),
-      _setting_dialog(new SettingDialog(&_param, _image)) {
+      _setting_dialog(new SettingDialog(&_param, _image)),
+      _preview(new Preview()) {
   // set central
   _image_label->setBackgroundRole(QPalette::Base);
   _image_label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
@@ -92,6 +93,9 @@ void MainWindow::createActions() {
   QMenu *edit_menu = menuBar()->addMenu(tr("&Setting"));
   edit_menu->addAction(tr("&Purrmitive Parameters"), this,
                        &MainWindow::openSetting);
+
+  connect(&_controller, &PurrmitiveController::onBgReceived, _preview,
+          &Preview::setBg);
 }
 
 void MainWindow::open() {
@@ -103,8 +107,9 @@ void MainWindow::open() {
   }
 
   _setting_dialog->updateImage(_image);
+
   _controller.init(&_param);
-  _preview = new Preview(this);
+
   setCentralWidget(_preview);
 }
 

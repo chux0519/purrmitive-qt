@@ -14,6 +14,8 @@ class Preview : public QGraphicsView {
  public:
   explicit Preview(QWidget *parent = nullptr);
   void drawBackground(QPainter *p, const QRectF &rect) override;
+
+ public slots:
   void setBg(const PurrmitiveColor &color);
 
  private:

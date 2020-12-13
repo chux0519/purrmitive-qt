@@ -74,6 +74,7 @@ class PurrmitiveController : public QObject {
  public slots:
   void handleInitResult(const PurrmitiveColor &bg) {
     qDebug() << "(" << bg.r << "," << bg.g << "," << bg.b << "," << bg.a << ")";
+    emit onBgReceived(bg);
   }
   void handleStepResult(const QString &svg) { qDebug() << "handleStepResult"; }
 
@@ -81,4 +82,5 @@ class PurrmitiveController : public QObject {
   void init(const PurrmitiveParam *param);
   void step();
   void stop();
+  void onBgReceived(const PurrmitiveColor &bg);
 };
