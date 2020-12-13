@@ -6,7 +6,7 @@
 #include <QString>
 #include <QThread>
 
-#include "purr-binding/target/libpurrmitive.h"
+#include "purr/purrmitive-ffi/target/libpurrmitive_ffi.h"
 
 Q_DECLARE_METATYPE(PurrmitiveColor);
 

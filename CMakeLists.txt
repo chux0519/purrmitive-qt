@@ -13,11 +13,12 @@ if(CMAKE_VERSION VERSION_LESS "3.7.0")
 endif()
 
 
-SET(PURR_BINDING_ROOT "${CMAKE_SOURCE_DIR}/deps/purr-binding")
-SET(PURR_BINDING_LIB_PATH "${CMAKE_SOURCE_DIR}/deps/purr-binding/target/release")
-link_directories(${PURR_BINDING_LIB_PATH})
-if(NOT EXISTS ${PURR_BINDING_LIB_PATH})
-      execute_process(COMMAND cargo build --release WORKING_DIRECTORY ${PURR_BINDING_ROOT})
+SET(PURR_ROOT "${CMAKE_SOURCE_DIR}/deps/purr")
+SET(PURR_LIB_PATH "${CMAKE_SOURCE_DIR}/deps/purr/target/release")
+SET(PURR_LIB_NAME purrmitive_ffi)
+link_directories(${PURR_LIB_PATH})
+if(NOT EXISTS ${PURR_LIB_PATH})
+      execute_process(COMMAND cargo build --release WORKING_DIRECTORY ${PURR_ROOT})
 endif()
 
 find_package(Qt5 COMPONENTS Widgets Svg REQUIRED)
@@ -29,4 +30,4 @@ add_executable(purrmitive
     ${SOURCES}
 )
 
-target_link_libraries(purrmitive Qt5::Widgets Qt5::Svg purrmitive_rust)
+target_link_libraries(purrmitive Qt5::Widgets Qt5::Svg ${PURR_LIB_NAME})
