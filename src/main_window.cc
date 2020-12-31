@@ -107,31 +107,33 @@ void MainWindow::createActions() {
 
   QMenu *run_menu = menuBar()->addMenu(tr("&Run"));
   QAction *start_action =
-      run_menu->addAction(tr("&Start"), this, &MainWindow::openSetting);
+      run_menu->addAction(tr("&Start"), this, &MainWindow::start);
   QToolBar *start_tool_bar = addToolBar(tr("Start"));
   start_tool_bar->addAction(start_action);
   start_tool_bar->setMovable(false);
 
   QAction *pause_resume_action =
-      run_menu->addAction(tr("Pause/Resume"), this, &MainWindow::openSetting);
+      run_menu->addAction(tr("Pause/Resume"), this, &MainWindow::pauseResume);
   QToolBar *pause_resume_tool_bar = addToolBar(tr("Pause/Resume"));
   pause_resume_tool_bar->addAction(pause_resume_action);
   pause_resume_tool_bar->setMovable(false);
 
   QAction *step_action =
-      run_menu->addAction(tr("Step"), this, &MainWindow::openSetting);
+      run_menu->addAction(tr("Step"), this, &MainWindow::step);
   QToolBar *step_tool_bar = addToolBar(tr("Step"));
   step_tool_bar->addAction(step_action);
   step_tool_bar->setMovable(false);
 
   QAction *stop_action =
-      run_menu->addAction(tr("Stop"), this, &MainWindow::openSetting);
+      run_menu->addAction(tr("Stop"), this, &MainWindow::stop);
   QToolBar *stop_tool_bar = addToolBar(tr("Stop"));
   stop_tool_bar->addAction(stop_action);
   stop_tool_bar->setMovable(false);
 
   connect(&_controller, &PurrmitiveController::onBgReceived, _preview,
           &Preview::setBg);
+  connect(&_controller, &PurrmitiveController::onStepResultReceived, _preview,
+          &Preview::step);
 }
 
 bool MainWindow::isParamValid() {
@@ -158,6 +160,10 @@ void MainWindow::open() {
 }
 
 void MainWindow::openSetting() { _setting_dialog->exec(); }
+void MainWindow::start() {}
+void MainWindow::step() { _controller.step(); }
+void MainWindow::stop() { _controller.stop(); }
+void MainWindow::pauseResume() {}
 
 void MainWindow::resizeImageWindow(const QImage &image) {
   // resize the window size

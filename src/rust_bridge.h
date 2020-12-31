@@ -12,6 +12,7 @@ Q_DECLARE_METATYPE(PurrmitiveColor);
 
 static void registerPurrmitiveMetaTypes() {
   qRegisterMetaType<PurrmitiveColor>("PurrmitiveColor");
+  qRegisterMetaType<PurrmitiveContextInfo>("PurrmitiveContextInfo");
 }
 
 class PurrmitiveWorker : public QObject {
@@ -24,8 +25,8 @@ class PurrmitiveWorker : public QObject {
     qDebug() << "init: " << param->input;
     purrmitive_init(param);
     PurrmitiveColor bg = purrmitive_get_bg();
-    // PurrmitiveColor bg;
-    emit initResultReady(bg);
+    PurrmitiveContextInfo ctx_info = purrmitive_get_ctx_info();
+    emit initResultReady(bg, ctx_info);
   }
 
   void step() {
@@ -34,13 +35,16 @@ class PurrmitiveWorker : public QObject {
     char *svg_bytes = purrmitive_get_last_shape();
     _svg = QString::fromUtf8(svg_bytes);
     purrmitive_free_str(svg_bytes);
-    emit stepResultReady(_svg);
+    PurrmitiveContextInfo ctx_info = purrmitive_get_ctx_info();
+
+    emit stepResultReady(_svg, ctx_info);
   }
   void stop() {}
 
  signals:
-  void initResultReady(const PurrmitiveColor &bg);
-  void stepResultReady(const QString &svg);
+  void initResultReady(const PurrmitiveColor &bg,
+                       const PurrmitiveContextInfo &info);
+  void stepResultReady(const QString &svg, const PurrmitiveContextInfo &info);
 
  private:
   QString _svg;
@@ -72,15 +76,22 @@ class PurrmitiveController : public QObject {
   }
 
  public slots:
-  void handleInitResult(const PurrmitiveColor &bg) {
+  void handleInitResult(const PurrmitiveColor &bg,
+                        const PurrmitiveContextInfo &info) {
     qDebug() << "(" << bg.r << "," << bg.g << "," << bg.b << "," << bg.a << ")";
-    emit onBgReceived(bg);
+    emit onBgReceived(bg, info);
   }
-  void handleStepResult(const QString &svg) { qDebug() << "handleStepResult"; }
+  void handleStepResult(const QString &svg, const PurrmitiveContextInfo &info) {
+    qDebug() << "handleStepResult";
+    emit onStepResultReceived(svg, info);
+  }
 
  signals:
   void init(const PurrmitiveParam *param);
   void step();
   void stop();
-  void onBgReceived(const PurrmitiveColor &bg);
+  void onBgReceived(const PurrmitiveColor &bg,
+                    const PurrmitiveContextInfo &info);
+  void onStepResultReceived(const QString &svg,
+                            const PurrmitiveContextInfo &info);
 };

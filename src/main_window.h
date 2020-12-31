@@ -24,6 +24,10 @@ class MainWindow : public QMainWindow {
  private slots:
   void open();
   void openSetting();
+  void start();
+  void step();
+  void stop();
+  void pauseResume();
 
  private:
   void createActions();
