@@ -68,22 +68,22 @@ bool MainWindow::loadImage(const QString &file) {
         this, QGuiApplication::applicationDisplayName(),
         tr("Cannot load %1: %2")
             .arg(QDir::toNativeSeparators(file), reader.errorString()));
+  } else {
+    resizeImageWindow(img);
+    setImage(img);
+    setWindowFilePath(file);
+    const QString message = tr("Opened \"%1\", %2x%3, Depth: %4")
+                                .arg(QDir::toNativeSeparators(file))
+                                .arg(img.width())
+                                .arg(img.height())
+                                .arg(img.depth());
+    statusBar()->showMessage(message);
+
+    _input = file.toStdString();
+    _param.input = _input.c_str();
+
+    return true;
   }
-
-  resizeImageWindow(img);
-  setImage(img);
-  setWindowFilePath(file);
-  const QString message = tr("Opened \"%1\", %2x%3, Depth: %4")
-                              .arg(QDir::toNativeSeparators(file))
-                              .arg(img.width())
-                              .arg(img.height())
-                              .arg(img.depth());
-  statusBar()->showMessage(message);
-
-  _input = file.toStdString();
-  _param.input = _input.c_str();
-
-  return true;
 }
 
 void MainWindow::createActions() {
@@ -91,15 +91,52 @@ void MainWindow::createActions() {
   QAction *open_action =
       file_menu->addAction(tr("&Open"), this, &MainWindow::open);
   open_action->setShortcut(QKeySequence::Open);
+  QToolBar *file_tool_bar = addToolBar(tr("File"));
+  file_tool_bar->addAction(open_action);
+  file_tool_bar->setMovable(false);
+
   connect(_setting_dialog->_thumbnail_selector, &QPushButton::released, this,
           &MainWindow::open);
 
   QMenu *edit_menu = menuBar()->addMenu(tr("&Setting"));
-  edit_menu->addAction(tr("&Purrmitive Parameters"), this,
-                       &MainWindow::openSetting);
+  QAction *param_action =
+      edit_menu->addAction(tr("&Params"), this, &MainWindow::openSetting);
+  QToolBar *edit_tool_bar = addToolBar(tr("Params"));
+  edit_tool_bar->addAction(param_action);
+  edit_tool_bar->setMovable(false);
+
+  QMenu *run_menu = menuBar()->addMenu(tr("&Run"));
+  QAction *start_action =
+      run_menu->addAction(tr("&Start"), this, &MainWindow::openSetting);
+  QToolBar *start_tool_bar = addToolBar(tr("Start"));
+  start_tool_bar->addAction(start_action);
+  start_tool_bar->setMovable(false);
+
+  QAction *pause_resume_action =
+      run_menu->addAction(tr("Pause/Resume"), this, &MainWindow::openSetting);
+  QToolBar *pause_resume_tool_bar = addToolBar(tr("Pause/Resume"));
+  pause_resume_tool_bar->addAction(pause_resume_action);
+  pause_resume_tool_bar->setMovable(false);
+
+  QAction *step_action =
+      run_menu->addAction(tr("Step"), this, &MainWindow::openSetting);
+  QToolBar *step_tool_bar = addToolBar(tr("Step"));
+  step_tool_bar->addAction(step_action);
+  step_tool_bar->setMovable(false);
+
+  QAction *stop_action =
+      run_menu->addAction(tr("Stop"), this, &MainWindow::openSetting);
+  QToolBar *stop_tool_bar = addToolBar(tr("Stop"));
+  stop_tool_bar->addAction(stop_action);
+  stop_tool_bar->setMovable(false);
 
   connect(&_controller, &PurrmitiveController::onBgReceived, _preview,
           &Preview::setBg);
+}
+
+bool MainWindow::isParamValid() {
+  if (_param.input != nullptr) return true;
+  return false;
 }
 
 void MainWindow::open() {
@@ -110,11 +147,14 @@ void MainWindow::open() {
          !loadImage(dialog.selectedFiles().first())) {
   }
 
-  _setting_dialog->updateImage(_image);
+  if (!_image.isNull()) {
+    _setting_dialog->updateImage(_image);
+  }
 
-  _controller.init(&_param);
-
-  _zstack->setCurrentIndex(1);
+  if (isParamValid()) {
+    _controller.init(&_param);
+    _zstack->setCurrentIndex(1);
+  }
 }
 
 void MainWindow::openSetting() { _setting_dialog->exec(); }

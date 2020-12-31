@@ -29,6 +29,7 @@ class MainWindow : public QMainWindow {
   void createActions();
   void setImage(const QImage &image);
   void resizeImageWindow(const QImage &image);
+  bool isParamValid();
 
   QImage _image;
   QLabel *_image_label;
