@@ -12,6 +12,7 @@ class QAction;
 class QMenu;
 class QLabel;
 class QScrollArea;
+class QStackedWidget;
 QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow {
@@ -34,6 +35,7 @@ class MainWindow : public QMainWindow {
   QScrollArea *_scroll_area;
   SettingDialog *_setting_dialog;
   Preview *_preview;
+  QStackedWidget *_zstack;
   std::string _input;
   PurrmitiveParam _param;
   PurrmitiveController _controller;

@@ -37,7 +37,8 @@ MainWindow::MainWindow()
     : _image_label(new QLabel),
       _scroll_area(new QScrollArea),
       _setting_dialog(new SettingDialog(&_param, _image)),
-      _preview(new Preview()) {
+      _preview(new Preview()),
+      _zstack(new QStackedWidget()) {
   // set central
   _image_label->setBackgroundRole(QPalette::Base);
   _image_label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
@@ -47,7 +48,10 @@ MainWindow::MainWindow()
   _scroll_area->setWidget(_image_label);
   _scroll_area->setVisible(false);
 
-  setCentralWidget(_scroll_area);
+  _zstack->addWidget(_scroll_area);
+  _zstack->addWidget(_preview);
+
+  setCentralWidget(_zstack);
 
   // init actions
   createActions();
@@ -110,7 +114,7 @@ void MainWindow::open() {
 
   _controller.init(&_param);
 
-  setCentralWidget(_preview);
+  _zstack->setCurrentIndex(1);
 }
 
 void MainWindow::openSetting() { _setting_dialog->exec(); }
