@@ -58,14 +58,21 @@ void Preview::renderCurrentState() {
 
 QString Preview::getCurrentSvg() {
   QString ret;
-  ret += QString().sprintf(
-      "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"%d\" "
-      "height=\"%d\">",
-      _info.w, _info.h);
-  ret += QString().sprintf(
-      "<rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" "
-      "fill=\"#%02X%02X%02X\"/>",
-      _info.w, _info.h, _bg.r, _bg.g, _bg.b);
+  ret += QString(
+             "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" "
+             "width=\"%1\" height=\"%2\">")
+             .arg(_info.w)
+             .arg(_info.h);
+
+  ret +=
+      QString(
+          "<rect x=\"0\" y=\"0\" width=\"%1\" height=\"%2\" fill=\"#%3%4%5\"/>")
+          .arg(_info.w)
+          .arg(_info.h)
+          .arg(_bg.r, 1, 16)
+          .arg(_bg.g, 1, 16)
+          .arg(_bg.b, 1, 16);
+
   ret += "<g transform=\"scale(1) translate(0.5 0.5)\">";
   for (auto shape : _shapes) {
     ret += shape;
