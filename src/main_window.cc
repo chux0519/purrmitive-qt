@@ -65,9 +65,6 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *event) {
 }
 
 void MainWindow::dropEvent(QDropEvent *event) {
-  qDebug() << event->mimeData()->hasUrls();
-  qDebug() << event->mimeData()->urls();
-
   event->acceptProposedAction();
 
   if (event->mimeData()->hasUrls()) {
@@ -156,6 +153,23 @@ void MainWindow::createActions() {
           &Preview::setBg);
   connect(&_controller, &PurrmitiveController::onStepResultReceived, _preview,
           &Preview::step);
+
+  connect(&_controller, &PurrmitiveController::onBgReceived, this,
+          &MainWindow::displayBgInfo);
+  connect(&_controller, &PurrmitiveController::onStepResultReceived, this,
+          &MainWindow::displayStepInfo);
+}
+
+void MainWindow::displayBgInfo(const PurrmitiveColor &color,
+                               const PurrmitiveContextInfo &info) {
+  statusBar()->showMessage(
+      QString("Score: %1, Step: %2").arg(1.0 - info.score).arg(_step));
+}
+
+void MainWindow::displayStepInfo(const QString &svg,
+                                 const PurrmitiveContextInfo &info) {
+  statusBar()->showMessage(
+      QString("Score: %1, Step: %2").arg(1.0 - info.score).arg(_step));
 }
 
 bool MainWindow::isParamValid() {
@@ -186,10 +200,12 @@ void MainWindow::step() {
     }
 
     if (isParamValid()) {
+      _step = 0;
       _controller.init(&_param);
       _zstack->setCurrentIndex(1);
     }
   } else if (idx == 1) {
+    _step += 1;
     _controller.step();
   }
 }
