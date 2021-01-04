@@ -25,6 +25,7 @@ void initImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode mode) {
   for (const QByteArray &mime : supported_mime_types) mime_types.append(mime);
   mime_types.sort();
   dialog.setMimeTypeFilters(mime_types);
+  // FIXME: bug in macOS big sur
   dialog.selectMimeTypeFilter("image/jpeg");
   if (mode == QFileDialog::AcceptSave) dialog.setDefaultSuffix("png");
 }
@@ -56,6 +57,28 @@ MainWindow::MainWindow()
   createActions();
 
   resize(256, 256);
+  setAcceptDrops(true);
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *event) {
+  event->acceptProposedAction();
+}
+
+void MainWindow::dropEvent(QDropEvent *event) {
+  qDebug() << event->mimeData()->hasUrls();
+  qDebug() << event->mimeData()->urls();
+
+  event->acceptProposedAction();
+
+  if (event->mimeData()->hasUrls()) {
+    QList<QUrl> urls = event->mimeData()->urls();
+    if (loadImage(urls.first().path())) {
+      if (!_image.isNull()) {
+        _setting_dialog->updateImage(_image);
+        resizeImageWindow();
+      }
+    }
+  }
 }
 
 bool MainWindow::loadImage(const QString &file) {
@@ -147,21 +170,30 @@ void MainWindow::open() {
   while (dialog.exec() == QDialog::Accepted &&
          !loadImage(dialog.selectedFiles().first())) {
   }
-
-  if (!_image.isNull()) {
-    _setting_dialog->updateImage(_image);
-    resizeImageWindow();
-  }
-
-  if (isParamValid()) {
-    _controller.init(&_param);
-    _zstack->setCurrentIndex(1);
-  }
 }
 
 void MainWindow::openSetting() { _setting_dialog->exec(); }
+
 void MainWindow::start() {}
-void MainWindow::step() { _controller.step(); }
+
+void MainWindow::step() {
+  int idx = _zstack->currentIndex();
+  if (idx == 0) {
+    // start and set bg
+    if (!_image.isNull()) {
+      _setting_dialog->updateImage(_image);
+      resizeImageWindow();
+    }
+
+    if (isParamValid()) {
+      _controller.init(&_param);
+      _zstack->setCurrentIndex(1);
+    }
+  } else if (idx == 1) {
+    _controller.step();
+  }
+}
+
 void MainWindow::stop() { _controller.stop(); }
 void MainWindow::pauseResume() {}
 
@@ -175,6 +207,7 @@ void MainWindow::setImage(const QImage &image) {
 }
 
 void MainWindow::resizeImageWindow() {
+  if (_image.isNull()) return;
   int title_bar_height =
       QApplication::style()->pixelMetric(QStyle::PM_TitleBarHeight);
   QSize img_size = _image.size();

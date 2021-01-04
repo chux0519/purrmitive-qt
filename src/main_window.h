@@ -13,6 +13,8 @@ class QMenu;
 class QLabel;
 class QScrollArea;
 class QStackedWidget;
+class QDragEnterEvent;
+class QDropEvent;
 QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow {
@@ -20,6 +22,10 @@ class MainWindow : public QMainWindow {
  public:
   MainWindow();
   bool loadImage(const QString &);
+
+ protected:
+  void dragEnterEvent(QDragEnterEvent *event) override;
+  void dropEvent(QDropEvent *event) override;
 
  private slots:
   void open();
