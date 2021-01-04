@@ -48,12 +48,22 @@ void Preview::renderCurrentState() {
   s->clear();
 
   QSvgRenderer *renderer = new QSvgRenderer(getCurrentSvg().toUtf8());
-  qDebug() << renderer->isValid();
+  // qDebug() << renderer->isValid();
   _svg = new QGraphicsSvgItem();
   _svg->setSharedRenderer(renderer);
+  QSize preview_size = size();
+  double scale_ratio =
+      std::min((double)preview_size.width() / (double)_info.w,
+               (double)preview_size.height() / (double)_info.h);
+  _svg->setScale(scale_ratio);
+  // to hide to scrollbar
+  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
   s->addItem(_svg);
-  qDebug() << "rendered";
+  // qDebug() << sceneRect();
+  // qDebug() << "rendered" << preview_size << ", " << _info.w * scale_ratio
+  //          << ", " << _info.h * scale_ratio;
 }
 
 QString Preview::getCurrentSvg() {
