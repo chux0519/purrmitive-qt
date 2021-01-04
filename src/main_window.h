@@ -32,12 +32,11 @@ class MainWindow : public QMainWindow {
  private:
   void createActions();
   void setImage(const QImage &image);
-  void resizeImageWindow(const QImage &image);
+  void resizeImageWindow();
   bool isParamValid();
 
   QImage _image;
   QLabel *_image_label;
-  QScrollArea *_scroll_area;
   SettingDialog *_setting_dialog;
   Preview *_preview;
   QStackedWidget *_zstack;

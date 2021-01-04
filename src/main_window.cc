@@ -7,6 +7,8 @@
 
 namespace {
 
+const int TOOLBAR_HEIGHT = 30;
+
 void initImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode mode) {
   static bool first_dialog = true;
   if (first_dialog) {
@@ -35,20 +37,17 @@ QSize getInitialWindowSize() {
 
 MainWindow::MainWindow()
     : _image_label(new QLabel),
-      _scroll_area(new QScrollArea),
       _setting_dialog(new SettingDialog(&_param, _image)),
       _preview(new Preview()),
       _zstack(new QStackedWidget()) {
-  // set central
-  _image_label->setBackgroundRole(QPalette::Base);
-  _image_label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-  _image_label->setScaledContents(true);
+  _image_label->setText("Open an image\n or Drag and Drop in the window");
+  _image_label->setAlignment(Qt::AlignCenter);
+  QPalette palette = _image_label->palette();
+  palette.setColor(_image_label->backgroundRole(), Qt::gray);
+  palette.setColor(_image_label->foregroundRole(), Qt::gray);
+  _image_label->setPalette(palette);
 
-  _scroll_area->setBackgroundRole(QPalette::Dark);
-  _scroll_area->setWidget(_image_label);
-  _scroll_area->setVisible(false);
-
-  _zstack->addWidget(_scroll_area);
+  _zstack->addWidget(_image_label);
   _zstack->addWidget(_preview);
 
   setCentralWidget(_zstack);
@@ -56,7 +55,7 @@ MainWindow::MainWindow()
   // init actions
   createActions();
 
-  resize(getInitialWindowSize());
+  resize(256, 256);
 }
 
 bool MainWindow::loadImage(const QString &file) {
@@ -69,7 +68,6 @@ bool MainWindow::loadImage(const QString &file) {
         tr("Cannot load %1: %2")
             .arg(QDir::toNativeSeparators(file), reader.errorString()));
   } else {
-    resizeImageWindow(img);
     setImage(img);
     setWindowFilePath(file);
     const QString message = tr("Opened \"%1\", %2x%3, Depth: %4")
@@ -94,6 +92,7 @@ void MainWindow::createActions() {
   QToolBar *file_tool_bar = addToolBar(tr("File"));
   file_tool_bar->addAction(open_action);
   file_tool_bar->setMovable(false);
+  file_tool_bar->setFixedHeight(TOOLBAR_HEIGHT);
 
   connect(_setting_dialog->_thumbnail_selector, &QPushButton::released, this,
           &MainWindow::open);
@@ -151,6 +150,7 @@ void MainWindow::open() {
 
   if (!_image.isNull()) {
     _setting_dialog->updateImage(_image);
+    resizeImageWindow();
   }
 
   if (isParamValid()) {
@@ -165,27 +165,24 @@ void MainWindow::step() { _controller.step(); }
 void MainWindow::stop() { _controller.stop(); }
 void MainWindow::pauseResume() {}
 
-void MainWindow::resizeImageWindow(const QImage &image) {
-  // resize the window size
-  int w = image.width();
-  int h = image.height();
-  QSize screen_size = getInitialWindowSize();
-  int screen_w = screen_size.width();
-  int screen_h = screen_size.height();
-
-  int h1 = int(double(h * screen_w) / double(w));
-  if (h1 <= screen_h) {
-    resize(screen_w, h1);
-  } else {
-    int w1 = int(double(w * screen_h) / double(h));
-    resize(w1, screen_h);
-  }
-}
-
 void MainWindow::setImage(const QImage &image) {
   _image = image;
+  QSize init_size = getInitialWindowSize();
+  _image =
+      _image.scaled(init_size.width(), init_size.height(), Qt::KeepAspectRatio);
   _image_label->setPixmap(QPixmap::fromImage(_image));
-  _scroll_area->setVisible(true);
-  _scroll_area->setWidgetResizable(true);
-  _image_label->adjustSize();
+  _image_label->setAlignment(Qt::AlignCenter);
+}
+
+void MainWindow::resizeImageWindow() {
+  int title_bar_height =
+      QApplication::style()->pixelMetric(QStyle::PM_TitleBarHeight);
+  QSize img_size = _image.size();
+  qDebug() << img_size;
+  _image_label->resize(img_size);
+  QSize new_window_size(img_size.width(),
+                        img_size.height() + title_bar_height + TOOLBAR_HEIGHT);
+  resize(new_window_size);
+  setMinimumSize(new_window_size);
+  setMaximumSize(new_window_size);
 }
