@@ -173,7 +173,11 @@ void MainWindow::onStepResultReceived(const QString &svg,
                                .arg(_controller.getScore())
                                .arg(_controller.getStep()));
 
-  if (_cont_run) step();
+  // use timer to prevent main thread blocking
+  // rate at around 60/s
+  QTimer::singleShot(17, [this]() {
+    if (_cont_run) step();
+  });
 }
 
 bool MainWindow::isParamValid() {
