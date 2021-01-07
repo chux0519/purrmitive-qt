@@ -40,9 +40,10 @@ class MainWindow : public QMainWindow {
   void setImage(const QImage &image);
   void resizeImageWindow();
   bool isParamValid();
-  void displayBgInfo(const PurrmitiveColor &color,
-                     const PurrmitiveContextInfo &info);
-  void displayStepInfo(const QString &svg, const PurrmitiveContextInfo &info);
+  void onBgReceived(const PurrmitiveColor &color,
+                    const PurrmitiveContextInfo &info);
+  void onStepResultReceived(const QString &svg,
+                            const PurrmitiveContextInfo &info);
 
   QImage _image;
   QLabel *_image_label;
@@ -52,5 +53,5 @@ class MainWindow : public QMainWindow {
   std::string _input;
   PurrmitiveParam _param;
   PurrmitiveController _controller;
-  int _step = 0;
+  bool _cont_run = false;
 };

@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QString>
 #include <QThread>
+#include <atomic>
 
 #include "purr/purrmitive-ffi/target/libpurrmitive_ffi.h"
 
@@ -26,6 +27,7 @@ class PurrmitiveWorker : public QObject {
     purrmitive_init(param);
     PurrmitiveColor bg = purrmitive_get_bg();
     PurrmitiveContextInfo ctx_info = purrmitive_get_ctx_info();
+
     emit initResultReady(bg, ctx_info);
   }
 
@@ -39,7 +41,8 @@ class PurrmitiveWorker : public QObject {
 
     emit stepResultReady(_svg, ctx_info);
   }
-  void stop() {}
+
+  void stop() { purrmitive_stop(); }
 
  signals:
   void initResultReady(const PurrmitiveColor &bg,
@@ -75,23 +78,52 @@ class PurrmitiveController : public QObject {
     thread.wait();
   }
 
- public slots:
+  double getScore() { return _score; }
+  int getStep() { return _step; }
+
+  void doStartOrStep(const PurrmitiveParam *param) {
+    if (_running) {
+      emit step();
+      _step++;
+    } else {
+      emit init(param);
+      _running = true;
+      _step = 0;
+    }
+  }
+
+  void doStop() {
+    emit stop();
+    _running = false;
+  }
+
+ public slots:  // worker -> controller
   void handleInitResult(const PurrmitiveColor &bg,
                         const PurrmitiveContextInfo &info) {
     qDebug() << "(" << bg.r << "," << bg.g << "," << bg.b << "," << bg.a << ")";
+    _score = 1.0 - info.score;
     emit onBgReceived(bg, info);
   }
   void handleStepResult(const QString &svg, const PurrmitiveContextInfo &info) {
     qDebug() << "handleStepResult";
+    _score = 1.0 - info.score;
+    // for UI, display score, step and preview
     emit onStepResultReceived(svg, info);
   }
 
- signals:
+ signals:  // UI -> controller -> worker
   void init(const PurrmitiveParam *param);
   void step();
   void stop();
+
+  // controller -> UI
   void onBgReceived(const PurrmitiveColor &bg,
                     const PurrmitiveContextInfo &info);
   void onStepResultReceived(const QString &svg,
                             const PurrmitiveContextInfo &info);
+
+ private:
+  bool _running = false;
+  int _step = -1;
+  double _score = 0.0;
 };

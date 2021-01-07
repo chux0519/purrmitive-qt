@@ -69,12 +69,7 @@ void MainWindow::dropEvent(QDropEvent *event) {
 
   if (event->mimeData()->hasUrls()) {
     QList<QUrl> urls = event->mimeData()->urls();
-    if (loadImage(urls.first().path())) {
-      if (!_image.isNull()) {
-        _setting_dialog->updateImage(_image);
-        resizeImageWindow();
-      }
-    }
+    loadImage(urls.first().path());
   }
 }
 
@@ -99,6 +94,9 @@ bool MainWindow::loadImage(const QString &file) {
 
     _input = file.toStdString();
     _param.input = _input.c_str();
+
+    _setting_dialog->updateImage(_image);
+    resizeImageWindow();
 
     return true;
   }
@@ -155,21 +153,27 @@ void MainWindow::createActions() {
           &Preview::step);
 
   connect(&_controller, &PurrmitiveController::onBgReceived, this,
-          &MainWindow::displayBgInfo);
+          &MainWindow::onBgReceived);
   connect(&_controller, &PurrmitiveController::onStepResultReceived, this,
-          &MainWindow::displayStepInfo);
+          &MainWindow::onStepResultReceived);
 }
 
-void MainWindow::displayBgInfo(const PurrmitiveColor &color,
-                               const PurrmitiveContextInfo &info) {
-  statusBar()->showMessage(
-      QString("Score: %1, Step: %2").arg(1.0 - info.score).arg(_step));
+void MainWindow::onBgReceived(const PurrmitiveColor &color,
+                              const PurrmitiveContextInfo &info) {
+  statusBar()->showMessage(QString("Score: %1, Step: %2")
+                               .arg(_controller.getScore())
+                               .arg(_controller.getStep()));
+
+  if (_cont_run) step();
 }
 
-void MainWindow::displayStepInfo(const QString &svg,
-                                 const PurrmitiveContextInfo &info) {
-  statusBar()->showMessage(
-      QString("Score: %1, Step: %2").arg(1.0 - info.score).arg(_step));
+void MainWindow::onStepResultReceived(const QString &svg,
+                                      const PurrmitiveContextInfo &info) {
+  statusBar()->showMessage(QString("Score: %1, Step: %2")
+                               .arg(_controller.getScore())
+                               .arg(_controller.getStep()));
+
+  if (_cont_run) step();
 }
 
 bool MainWindow::isParamValid() {
@@ -188,30 +192,30 @@ void MainWindow::open() {
 
 void MainWindow::openSetting() { _setting_dialog->exec(); }
 
-void MainWindow::start() {}
-
-void MainWindow::step() {
-  int idx = _zstack->currentIndex();
-  if (idx == 0) {
-    // start and set bg
-    if (!_image.isNull()) {
-      _setting_dialog->updateImage(_image);
-      resizeImageWindow();
-    }
-
-    if (isParamValid()) {
-      _step = 0;
-      _controller.init(&_param);
-      _zstack->setCurrentIndex(1);
-    }
-  } else if (idx == 1) {
-    _step += 1;
-    _controller.step();
-  }
+void MainWindow::start() {
+  if (_zstack->currentIndex() != 1) _zstack->setCurrentIndex(1);
+  _cont_run = true;
+  step();
 }
 
-void MainWindow::stop() { _controller.stop(); }
-void MainWindow::pauseResume() {}
+void MainWindow::step() {
+  if (_zstack->currentIndex() != 1) _zstack->setCurrentIndex(1);
+  _controller.doStartOrStep(&_param);
+}
+
+void MainWindow::stop() {
+  _cont_run = false;
+  _controller.doStop();
+}
+
+void MainWindow::pauseResume() {
+  if (_cont_run) {
+    _cont_run = false;
+  } else {
+    _cont_run = true;
+    step();
+  }
+}
 
 void MainWindow::setImage(const QImage &image) {
   _image = image;
