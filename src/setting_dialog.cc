@@ -109,7 +109,9 @@ void SettingDialog::createDownGroupBox() {
   _downGroupBox = new QGroupBox();
   QGridLayout* layout = new QGridLayout;
 
-  // 1st row
+  // 1st col
+  QVBoxLayout* col1 = new QVBoxLayout;
+
   QHBoxLayout* hlayout1 = new QHBoxLayout;
   _alpha_box = new QCheckBox();
   _alpha_box->setChecked(false);
@@ -130,20 +132,46 @@ void SettingDialog::createDownGroupBox() {
           &SettingDialog::setAlphaBySpinBox);
   hlayout1->addWidget(_alpha_box);
   hlayout1->addWidget(new QLabel(tr("Shape alpha: ")));
+  hlayout1->addWidget(_alpha_spin);
+  hlayout1->addWidget(_alpha_slider);
+  hlayout1->addSpacing(40);
 
-  layout->addLayout(hlayout1, 0, 0, Qt::AlignLeft);
-  layout->addWidget(_alpha_spin, 0, 1);
-  layout->addWidget(_alpha_slider, 0, 2, 1, 2);
+  col1->addLayout(hlayout1);
+  layout->addLayout(col1, 0, 0, Qt::AlignTop);
 
-  // 2nd row
+  // 2nd col
+  QVBoxLayout* col2 = new QVBoxLayout;
+
+  QHBoxLayout* r1 = new QHBoxLayout;
+  QRadioButton* r1_btn = new QRadioButton("Run until stopped");
+  r1_btn->setChecked(true);
+  // TODO: connect
+  r1->addWidget(r1_btn);
+  col2->addLayout(r1);
+
   _count_spin = new QSpinBox();
   _count_spin->setMaximum(65535);
   _count_spin->setEnabled(false);
-  QHBoxLayout* hlayout2 = new QHBoxLayout;
-  hlayout2->addWidget(new QRadioButton());
-  hlayout2->addWidget(new QLabel(tr("Run until shapes: ")));
-  layout->addLayout(hlayout2, 1, 0, Qt::AlignLeft);
-  layout->addWidget(_count_spin, 1, 1);
+
+  QHBoxLayout* r2 = new QHBoxLayout;
+  QRadioButton* r2_btn = new QRadioButton("Run until shapes:");
+  r2->addWidget(r2_btn);
+  r2->addWidget(_count_spin);
+  col2->addLayout(r2);
+
+  QHBoxLayout* r3 = new QHBoxLayout;
+  QRadioButton* r3_btn = new QRadioButton("Run until score:");
+  QLineEdit* r3_line = new QLineEdit("95");
+  r3_line->setValidator(new QIntValidator(85, 100, this));
+  r3_line->setEnabled(false);
+  r3_line->setMaximumWidth(30);
+  r3->addWidget(r3_btn);
+  r3->addWidget(r3_line);
+  r3->addWidget(new QLabel("%"));
+  col2->addLayout(r3);
+
+  col2->setMargin(8);
+  layout->addLayout(col2, 0, 1, Qt::AlignTop);
   connect(_count_spin, QOverload<int>::of(&QSpinBox::valueChanged), this,
           &SettingDialog::setCount);
 
