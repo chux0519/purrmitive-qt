@@ -38,7 +38,7 @@ QSize getInitialWindowSize() {
 
 MainWindow::MainWindow()
     : _image_label(new QLabel),
-      _setting_dialog(new SettingDialog(&_param, _image)),
+      _setting_dialog(new SettingDialog(&_param, &_stop_cond, _image)),
       _preview(new Preview()),
       _zstack(new QStackedWidget()) {
   _image_label->setText("Open an image\n or Drag and Drop in the window");
@@ -168,7 +168,7 @@ void MainWindow::showStatus() {
 void MainWindow::onBgReceived(const PurrmitiveColor &color,
                               const PurrmitiveContextInfo &info) {
   showStatus();
-  if (_cont_run) step();
+  if (shouldRun()) step();
 }
 
 void MainWindow::onStepResultReceived(const QString &svg,
@@ -177,7 +177,7 @@ void MainWindow::onStepResultReceived(const QString &svg,
   // use timer to prevent main thread blocking
   // rate at around 60/s
   QTimer::singleShot(17, [this]() {
-    if (_cont_run) step();
+    if (shouldRun()) step();
   });
 }
 
@@ -199,7 +199,7 @@ void MainWindow::openSetting() { _setting_dialog->exec(); }
 
 void MainWindow::start() {
   if (_zstack->currentIndex() != 1) _zstack->setCurrentIndex(1);
-  _cont_run = true;
+  _stop_cond.noStop = true;
   step();
 }
 
@@ -209,15 +209,15 @@ void MainWindow::step() {
 }
 
 void MainWindow::stop() {
-  _cont_run = false;
+  _stop_cond.noStop = false;
   _controller.doStop();
 }
 
 void MainWindow::pauseResume() {
-  if (_cont_run) {
-    _cont_run = false;
+  if (_stop_cond.noStop) {
+    _stop_cond.noStop = false;
   } else {
-    _cont_run = true;
+    _stop_cond.noStop = true;
     step();
   }
 }

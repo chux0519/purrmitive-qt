@@ -22,7 +22,7 @@ class SettingDialog : public QDialog {
   Q_OBJECT;
 
  public:
-  SettingDialog(PurrmitiveParam* param, const QImage& img);
+  SettingDialog(PurrmitiveParam*, StopCond*, const QImage&);
   void updateImage(const QImage& img);
 
  signals:
@@ -36,7 +36,6 @@ class SettingDialog : public QDialog {
   void setMode(int mode);
   void setAlphaBySpinBox(int val);
   void setAlphaBySlider(int val);
-  void setCount(int val);
   void setDefaultParams();
   void confirm();
   void clear();
@@ -64,6 +63,7 @@ class SettingDialog : public QDialog {
   QPushButton* _clear_button;
 
   PurrmitiveParam* _param;
+  StopCond* _stop_cond;
 
   friend class MainWindow;
 };

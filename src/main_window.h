@@ -46,6 +46,15 @@ class MainWindow : public QMainWindow {
                     const PurrmitiveContextInfo &info);
   void onStepResultReceived(const QString &svg,
                             const PurrmitiveContextInfo &info);
+  inline bool shouldRun() {
+    if (_controller.getScore() >= _stop_cond.stopScore) {
+      return false;
+    }
+    if (_controller.getStep() >= _stop_cond.stopShapes) {
+      return false;
+    }
+    return _stop_cond.noStop;
+  };
 
   QImage _image;
   QLabel *_image_label;
@@ -55,5 +64,5 @@ class MainWindow : public QMainWindow {
   std::string _input;
   PurrmitiveParam _param;
   PurrmitiveController _controller;
-  bool _cont_run = false;
+  StopCond _stop_cond;
 };

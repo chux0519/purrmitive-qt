@@ -8,12 +8,14 @@ const char* MODES[] = {"combo",   "triangle",       "rect",
                        "beziers", "rotatedellipse", "polygon"};
 static int THUMBNAIL_SIZE = 96;
 
-SettingDialog::SettingDialog(PurrmitiveParam* param, const QImage& img)
+SettingDialog::SettingDialog(PurrmitiveParam* param, StopCond* stop_cond,
+                             const QImage& img)
     : _thumbnail_img(img),
       _thumbnail(new QLabel),
       _thumbnail_selector(new QPushButton(tr("Open Image"))),
       _clear_button(new QPushButton("Clear Drawing")),
-      _param(param) {
+      _param(param),
+      _stop_cond(stop_cond) {
   createUpGroupBox();
   createDownGroupBox();
   createButtons();
@@ -145,7 +147,11 @@ void SettingDialog::createDownGroupBox() {
   QHBoxLayout* r1 = new QHBoxLayout;
   QRadioButton* r1_btn = new QRadioButton("Run until stopped");
   r1_btn->setChecked(true);
-  // TODO: connect
+  connect(r1_btn, &QRadioButton::toggled, [=]() {
+    _stop_cond->noStop = true;
+    _stop_cond->stopScore = 1.0;
+    _stop_cond->stopShapes = 65535;
+  });
   r1->addWidget(r1_btn);
   col2->addLayout(r1);
 
@@ -155,6 +161,17 @@ void SettingDialog::createDownGroupBox() {
 
   QHBoxLayout* r2 = new QHBoxLayout;
   QRadioButton* r2_btn = new QRadioButton("Run until shapes:");
+  connect(r2_btn, &QRadioButton::toggled, [=]() {
+    _stop_cond->noStop = false;
+    _stop_cond->stopScore = 1.0;
+    _count_spin->setEnabled(true);
+  });
+  connect(_count_spin, QOverload<int>::of(&QSpinBox::valueChanged),
+          [=](int val) {
+            _stop_cond->noStop = false;
+            _stop_cond->stopScore = 1.0;
+            _stop_cond->stopShapes = val;
+          });
   r2->addWidget(r2_btn);
   r2->addWidget(_count_spin);
   col2->addLayout(r2);
@@ -162,9 +179,22 @@ void SettingDialog::createDownGroupBox() {
   QHBoxLayout* r3 = new QHBoxLayout;
   QRadioButton* r3_btn = new QRadioButton("Run until score:");
   QLineEdit* r3_line = new QLineEdit("95");
+
+  connect(r3_btn, &QRadioButton::toggled, [=]() {
+    _stop_cond->noStop = false;
+    _stop_cond->stopShapes = 65535;
+    r3_line->setEnabled(true);
+  });
   r3_line->setValidator(new QIntValidator(85, 100, this));
   r3_line->setEnabled(false);
   r3_line->setMaximumWidth(30);
+
+  connect(r3_line, &QLineEdit::textChanged, [=](const QString& val) {
+    _stop_cond->noStop = false;
+    _stop_cond->stopScore = val.toDouble() / 100.0;
+    _stop_cond->stopShapes = 65535;
+  });
+
   r3->addWidget(r3_btn);
   r3->addWidget(r3_line);
   r3->addWidget(new QLabel("%"));
@@ -172,14 +202,8 @@ void SettingDialog::createDownGroupBox() {
 
   col2->setMargin(8);
   layout->addLayout(col2, 0, 1, Qt::AlignTop);
-  connect(_count_spin, QOverload<int>::of(&QSpinBox::valueChanged), this,
-          &SettingDialog::setCount);
 
   _downGroupBox->setLayout(layout);
-}
-
-void SettingDialog::setCount(int val) {
-  // TODO: set stop things
 }
 
 void SettingDialog::setAlphaBySpinBox(int val) {

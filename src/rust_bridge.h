@@ -9,6 +9,12 @@
 
 #include "purr/purrmitive-ffi/target/libpurrmitive_ffi.h"
 
+struct StopCond {
+  double stopScore = 1.0;
+  int stopShapes = 65535;
+  bool noStop = true;
+};
+
 Q_DECLARE_METATYPE(PurrmitiveColor);
 
 static void registerPurrmitiveMetaTypes() {
