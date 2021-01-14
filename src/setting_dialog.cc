@@ -16,22 +16,23 @@ SettingDialog::SettingDialog(PurrmitiveParam* param, StopCond* stop_cond,
       _clear_button(new QPushButton("Clear Drawing")),
       _param(param),
       _stop_cond(stop_cond) {
-  createUpGroupBox();
-  createDownGroupBox();
-  createButtons();
+  QGroupBox* upGroupBox = createUpGroupBox();
+  QGroupBox* downGroupBox = createDownGroupBox();
+
+  QHBoxLayout* buttons_layout = createButtons();
 
   QVBoxLayout* mainLayout = new QVBoxLayout;
-  mainLayout->addWidget(_upGroupBox);
-  mainLayout->addWidget(_downGroupBox);
-  mainLayout->addLayout(_buttons_layout);
+  mainLayout->addWidget(upGroupBox);
+  mainLayout->addWidget(downGroupBox);
+  mainLayout->addLayout(buttons_layout);
   setLayout(mainLayout);
   setWindowTitle(tr("Purrmitive Setup"));
 
   setDefaultParams();
 }
 
-void SettingDialog::createButtons() {
-  _buttons_layout = new QHBoxLayout;
+QHBoxLayout* SettingDialog::createButtons() {
+  QHBoxLayout* _buttons_layout = new QHBoxLayout;
   _buttons_layout->addWidget(_clear_button, 0, Qt::AlignLeft);
   QDialogButtonBox* buttons =
       new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -40,6 +41,7 @@ void SettingDialog::createButtons() {
   connect(buttons, &QDialogButtonBox::accepted, this, &SettingDialog::confirm);
   connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
   _buttons_layout->addWidget(buttons, 0, Qt::AlignRight);
+  return _buttons_layout;
 }
 
 void SettingDialog::clear() { emit clearDrawing(); }
@@ -74,17 +76,17 @@ void SettingDialog::updateImage(const QImage& img) {
   _thumbnail->setAlignment(Qt::AlignCenter);
 }
 
-void SettingDialog::createUpGroupBox() {
-  _upGroupBox = new QGroupBox();
+QGroupBox* SettingDialog::createUpGroupBox() {
+  QGroupBox* _upGroupBox = new QGroupBox();
   QHBoxLayout* hlayout = new QHBoxLayout;
 
-  _upLeftGroupBox = new QGroupBox("Select Image");
+  QGroupBox* _upLeftGroupBox = new QGroupBox("Select Image");
   QVBoxLayout* ul_layout = new QVBoxLayout;
   updateImage(_thumbnail_img);
   ul_layout->addWidget(_thumbnail);
   ul_layout->addWidget(_thumbnail_selector);
 
-  _upRightGroupBox = new QGroupBox(tr("Select Shape Type"));
+  QGroupBox* _upRightGroupBox = new QGroupBox(tr("Select Shape Type"));
   QGridLayout* ur_layout = new QGridLayout;
   int rows = 3, cols = 3;
   for (int i = 0; i < rows; ++i) {
@@ -105,10 +107,11 @@ void SettingDialog::createUpGroupBox() {
   hlayout->addWidget(_upLeftGroupBox);
   hlayout->addWidget(_upRightGroupBox);
   _upGroupBox->setLayout(hlayout);
+  return _upGroupBox;
 }
 
-void SettingDialog::createDownGroupBox() {
-  _downGroupBox = new QGroupBox();
+QGroupBox* SettingDialog::createDownGroupBox() {
+  QGroupBox* _downGroupBox = new QGroupBox();
   QGridLayout* layout = new QGridLayout;
 
   // 1st col
@@ -204,6 +207,8 @@ void SettingDialog::createDownGroupBox() {
   layout->addLayout(col2, 0, 1, Qt::AlignTop);
 
   _downGroupBox->setLayout(layout);
+
+  return _downGroupBox;
 }
 
 void SettingDialog::setAlphaBySpinBox(int val) {

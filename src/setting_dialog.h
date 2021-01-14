@@ -29,22 +29,15 @@ class SettingDialog : public QDialog {
   void clearDrawing();
 
  private:
-  void createHorizontalGroupBox();
-  void createUpGroupBox();
-  void createDownGroupBox();
-  void createButtons();
+  QGroupBox* createUpGroupBox();
+  QGroupBox* createDownGroupBox();
+  QHBoxLayout* createButtons();
   void setMode(int mode);
   void setAlphaBySpinBox(int val);
   void setAlphaBySlider(int val);
   void setDefaultParams();
   void confirm();
   void clear();
-
-  QGroupBox* _upGroupBox;
-  QGroupBox* _upLeftGroupBox;
-  QGroupBox* _upRightGroupBox;
-  QGroupBox* _downGroupBox;
-  QHBoxLayout* _buttons_layout;
 
   // upleft
   QImage _thumbnail_img;
