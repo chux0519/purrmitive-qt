@@ -34,12 +34,14 @@ class MainWindow : public QMainWindow {
   void step();
   void stop();
   void pauseResume();
+  void reset();
 
  private:
   void createActions();
   void setImage(const QImage &image);
   void resizeImageWindow();
   bool isParamValid();
+  void showStatus();
   void onBgReceived(const PurrmitiveColor &color,
                     const PurrmitiveContextInfo &info);
   void onStepResultReceived(const QString &svg,

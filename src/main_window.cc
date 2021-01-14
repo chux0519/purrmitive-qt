@@ -114,6 +114,8 @@ void MainWindow::createActions() {
 
   connect(_setting_dialog->_thumbnail_selector, &QPushButton::released, this,
           &MainWindow::open);
+  connect(_setting_dialog, &SettingDialog::clearDrawing, this,
+          &MainWindow::reset);
 
   QMenu *edit_menu = menuBar()->addMenu(tr("&Setting"));
   QAction *param_action =
@@ -158,21 +160,20 @@ void MainWindow::createActions() {
           &MainWindow::onStepResultReceived);
 }
 
+void MainWindow::showStatus() {
+  uint32_t step = _controller.getStep() < 0 ? 0 : _controller.getStep();
+  statusBar()->showMessage(
+      QString("Score: %1, Step: %2").arg(_controller.getScore()).arg(step));
+}
 void MainWindow::onBgReceived(const PurrmitiveColor &color,
                               const PurrmitiveContextInfo &info) {
-  statusBar()->showMessage(QString("Score: %1, Step: %2")
-                               .arg(_controller.getScore())
-                               .arg(_controller.getStep()));
-
+  showStatus();
   if (_cont_run) step();
 }
 
 void MainWindow::onStepResultReceived(const QString &svg,
                                       const PurrmitiveContextInfo &info) {
-  statusBar()->showMessage(QString("Score: %1, Step: %2")
-                               .arg(_controller.getScore())
-                               .arg(_controller.getStep()));
-
+  showStatus();
   // use timer to prevent main thread blocking
   // rate at around 60/s
   QTimer::singleShot(17, [this]() {
@@ -242,4 +243,11 @@ void MainWindow::resizeImageWindow() {
   resize(new_window_size);
   setMinimumSize(new_window_size);
   setMaximumSize(new_window_size);
+}
+
+void MainWindow::reset() {
+  stop();
+  _preview->clearDrawing();
+  _zstack->setCurrentIndex(0);
+  showStatus();
 }

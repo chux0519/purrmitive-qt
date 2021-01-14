@@ -91,3 +91,8 @@ QString Preview::getCurrentSvg() {
   ret += "</svg>";
   return ret;
 }
+
+void Preview::clearDrawing() {
+  _shapes.clear();
+  renderCurrentState();
+}

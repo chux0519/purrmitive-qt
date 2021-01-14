@@ -13,6 +13,7 @@ class QLabel;
 class QCheckBox;
 class QSpinBox;
 class QSlider;
+class QHBoxLayout;
 QT_END_NAMESPACE
 
 class MainWindow;
@@ -24,22 +25,27 @@ class SettingDialog : public QDialog {
   SettingDialog(PurrmitiveParam* param, const QImage& img);
   void updateImage(const QImage& img);
 
+ signals:
+  void clearDrawing();
+
  private:
   void createHorizontalGroupBox();
   void createUpGroupBox();
   void createDownGroupBox();
+  void createButtons();
   void setMode(int mode);
   void setAlphaBySpinBox(int val);
   void setAlphaBySlider(int val);
   void setCount(int val);
   void setDefaultParams();
   void confirm();
+  void clear();
 
   QGroupBox* _upGroupBox;
   QGroupBox* _upLeftGroupBox;
   QGroupBox* _upRightGroupBox;
   QGroupBox* _downGroupBox;
-  QDialogButtonBox* _buttonBox;
+  QHBoxLayout* _buttons_layout;
 
   // upleft
   QImage _thumbnail_img;
@@ -53,6 +59,9 @@ class SettingDialog : public QDialog {
   QSlider* _alpha_slider;
 
   QSpinBox* _count_spin;
+
+  // clear button
+  QPushButton* _clear_button;
 
   PurrmitiveParam* _param;
 

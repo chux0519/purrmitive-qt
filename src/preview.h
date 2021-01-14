@@ -23,6 +23,7 @@ class Preview : public QGraphicsView {
  public slots:
   void setBg(const PurrmitiveColor &color, const PurrmitiveContextInfo &info);
   void step(const QString &svg, const PurrmitiveContextInfo &info);
+  void clearDrawing();
 
  private:
   QGraphicsSvgItem *_svg;

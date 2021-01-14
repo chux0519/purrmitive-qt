@@ -12,29 +12,39 @@ SettingDialog::SettingDialog(PurrmitiveParam* param, const QImage& img)
     : _thumbnail_img(img),
       _thumbnail(new QLabel),
       _thumbnail_selector(new QPushButton(tr("Open Image"))),
+      _clear_button(new QPushButton("Clear Drawing")),
       _param(param) {
   createUpGroupBox();
   createDownGroupBox();
-
-  _buttonBox =
-      new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-  connect(_buttonBox, &QDialogButtonBox::accepted, this,
-          &SettingDialog::confirm);
-  connect(_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+  createButtons();
 
   QVBoxLayout* mainLayout = new QVBoxLayout;
-
   mainLayout->addWidget(_upGroupBox);
   mainLayout->addWidget(_downGroupBox);
-  mainLayout->addWidget(_buttonBox);
+  mainLayout->addLayout(_buttons_layout);
   setLayout(mainLayout);
-  setWindowTitle(tr("Purrmitive Settings"));
+  setWindowTitle(tr("Purrmitive Setup"));
+
   setDefaultParams();
 }
 
+void SettingDialog::createButtons() {
+  _buttons_layout = new QHBoxLayout;
+  _buttons_layout->addWidget(_clear_button, 0, Qt::AlignLeft);
+  QDialogButtonBox* buttons =
+      new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+
+  connect(_clear_button, &QPushButton::clicked, this, &SettingDialog::clear);
+  connect(buttons, &QDialogButtonBox::accepted, this, &SettingDialog::confirm);
+  connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+  _buttons_layout->addWidget(buttons, 0, Qt::AlignRight);
+}
+
+void SettingDialog::clear() { emit clearDrawing(); }
+
 void SettingDialog::confirm() {
   qDebug() << "alpha: " << _param->alpha << ", ";
-  qDebug() << "count: " << _param->count << ", ";
+  qDebug() << "bg: " << _param->bg << ", ";
   qDebug() << "input: " << _param->input << ", ";
   qDebug() << "mode: " << _param->mode << ", ";
   qDebug() << "resize: " << _param->resize << ", ";
@@ -120,14 +130,19 @@ void SettingDialog::createDownGroupBox() {
           &SettingDialog::setAlphaBySpinBox);
   hlayout1->addWidget(_alpha_box);
   hlayout1->addWidget(new QLabel(tr("Shape alpha: ")));
-  layout->addLayout(hlayout1, 0, 0, Qt::AlignRight);
+
+  layout->addLayout(hlayout1, 0, 0, Qt::AlignLeft);
   layout->addWidget(_alpha_spin, 0, 1);
   layout->addWidget(_alpha_slider, 0, 2, 1, 2);
 
   // 2nd row
   _count_spin = new QSpinBox();
   _count_spin->setMaximum(65535);
-  layout->addWidget(new QLabel(tr("Shape number: ")), 1, 0, Qt::AlignRight);
+  _count_spin->setEnabled(false);
+  QHBoxLayout* hlayout2 = new QHBoxLayout;
+  hlayout2->addWidget(new QRadioButton());
+  hlayout2->addWidget(new QLabel(tr("Run until shapes: ")));
+  layout->addLayout(hlayout2, 1, 0, Qt::AlignLeft);
   layout->addWidget(_count_spin, 1, 1);
   connect(_count_spin, QOverload<int>::of(&QSpinBox::valueChanged), this,
           &SettingDialog::setCount);
@@ -135,7 +150,9 @@ void SettingDialog::createDownGroupBox() {
   _downGroupBox->setLayout(layout);
 }
 
-void SettingDialog::setCount(int val) { _param->count = val; }
+void SettingDialog::setCount(int val) {
+  // TODO: set stop things
+}
 
 void SettingDialog::setAlphaBySpinBox(int val) {
   int percent = round(double(val * 100) / (double)256);

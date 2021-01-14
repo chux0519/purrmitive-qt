@@ -95,6 +95,8 @@ class PurrmitiveController : public QObject {
   void doStop() {
     emit stop();
     _running = false;
+    _step = -1;
+    _score = 0.0;
   }
 
  public slots:  // worker -> controller
