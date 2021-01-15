@@ -183,6 +183,7 @@ void MainWindow::createActions() {
     stop_tool_bar->setEnabled(false);
     step_tool_bar->setEnabled(true);
     start_tool_bar->setEnabled(true);
+    save_tool_bar->setEnabled(true);
   });
 
   QAction *clear_action =
