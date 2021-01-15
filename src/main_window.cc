@@ -256,6 +256,7 @@ void MainWindow::start() {
 
 void MainWindow::step() {
   if (!isParamValid()) return;
+  if (!shouldRun()) showPreviewImage();
   _controller.doStartOrStep(&_param);
 }
 

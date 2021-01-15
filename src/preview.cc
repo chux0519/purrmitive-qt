@@ -9,6 +9,10 @@ void Preview::setBg(const PurrmitiveColor &color,
                     const PurrmitiveContextInfo &info) {
   _bg = color;
   _info = info;
+  _initImage();
+  QColor c = QColor(color.r, color.g, color.b, color.a);
+  _img.fill(c);
+  renderCurrentState();
 }
 
 void Preview::setSize(QSize &size) { _size = size; }
@@ -30,13 +34,7 @@ void Preview::renderCurrentState() {
 }
 
 void Preview::renderImg() {
-  if (_info.w > _info.h) {
-    _img = QImage(1024, round(1024.0 / (double)_info.w * (double)_info.h),
-                  QImage::Format_ARGB32);
-  } else {
-    _img = QImage(round(1024.0 / (double)_info.h * (double)_info.w), 1024,
-                  QImage::Format_ARGB32);
-  }
+  _initImage();
   _img.fill(Qt::transparent);
   QPainter painter(&_img);
   QSvgRenderer *renderer = new QSvgRenderer(getCurrentSvg().toUtf8());
