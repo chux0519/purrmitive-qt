@@ -74,10 +74,12 @@ void MainWindow::dropEvent(QDropEvent *event) {
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event) {
+  if (_controller.getStep() <= 0) return;
   if (event->key() == Qt::Key_Space) showOriginImage();
 }
 
 void MainWindow::keyReleaseEvent(QKeyEvent *event) {
+  if (_controller.getStep() <= 0) return;
   if (event->key() == Qt::Key_Space) {
     if (isParamValid()) showPreviewImage();
   }
@@ -121,6 +123,15 @@ void MainWindow::createActions() {
   file_tool_bar->addAction(open_action);
   file_tool_bar->setMovable(false);
   file_tool_bar->setFixedHeight(TOOLBAR_HEIGHT);
+
+  QAction *save_action =
+      file_menu->addAction(tr("&Save"), this, &MainWindow::save);
+  save_action->setShortcut(QKeySequence::Save);
+  QToolBar *save_tool_bar = addToolBar(tr("Save"));
+  save_tool_bar->addAction(save_action);
+  save_tool_bar->setMovable(false);
+  save_tool_bar->setFixedHeight(TOOLBAR_HEIGHT);
+  save_tool_bar->setContentsMargins(0, 0, 40, 0);
 
   connect(_setting_dialog, &SettingDialog::selectImage, this,
           &MainWindow::open);
@@ -200,6 +211,8 @@ void MainWindow::open() {
          !loadImage(dialog.selectedFiles().first())) {
   }
 }
+
+void MainWindow::save() {}
 
 void MainWindow::openSetting() { _setting_dialog->exec(); }
 

@@ -32,6 +32,7 @@ class MainWindow : public QMainWindow {
 
  private slots:
   void open();
+  void save();
   void openSetting();
   void start();
   void step();
