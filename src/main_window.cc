@@ -73,6 +73,16 @@ void MainWindow::dropEvent(QDropEvent *event) {
   }
 }
 
+void MainWindow::keyPressEvent(QKeyEvent *event) {
+  if (event->key() == Qt::Key_Space) showOriginImage();
+}
+
+void MainWindow::keyReleaseEvent(QKeyEvent *event) {
+  if (event->key() == Qt::Key_Space) {
+    if (isParamValid()) showPreviewImage();
+  }
+}
+
 bool MainWindow::loadImage(const QString &file) {
   QImageReader reader(file);
   reader.setAutoTransform(true);
@@ -198,15 +208,12 @@ void MainWindow::open() {
 void MainWindow::openSetting() { _setting_dialog->exec(); }
 
 void MainWindow::start() {
-  if (_zstack->currentIndex() != 1) _zstack->setCurrentIndex(1);
+  showPreviewImage();
   _stop_cond.noStop = true;
   step();
 }
 
-void MainWindow::step() {
-  if (_zstack->currentIndex() != 1) _zstack->setCurrentIndex(1);
-  _controller.doStartOrStep(&_param);
-}
+void MainWindow::step() { _controller.doStartOrStep(&_param); }
 
 void MainWindow::stop() {
   _stop_cond.noStop = false;
@@ -248,6 +255,14 @@ void MainWindow::resizeImageWindow() {
 void MainWindow::reset() {
   stop();
   _preview->clearDrawing();
-  _zstack->setCurrentIndex(0);
+  showOriginImage();
   showStatus();
+}
+
+void MainWindow::showOriginImage() {
+  if (_zstack->currentIndex() != 0) _zstack->setCurrentIndex(0);
+}
+
+void MainWindow::showPreviewImage() {
+  if (_zstack->currentIndex() != 1) _zstack->setCurrentIndex(1);
 }

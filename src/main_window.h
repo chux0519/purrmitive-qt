@@ -15,6 +15,7 @@ class QScrollArea;
 class QStackedWidget;
 class QDragEnterEvent;
 class QDropEvent;
+class QKeyEvent;
 QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow {
@@ -26,6 +27,8 @@ class MainWindow : public QMainWindow {
  protected:
   void dragEnterEvent(QDragEnterEvent *event) override;
   void dropEvent(QDropEvent *event) override;
+  void keyPressEvent(QKeyEvent *event) override;
+  void keyReleaseEvent(QKeyEvent *event) override;
 
  private slots:
   void open();
@@ -42,6 +45,8 @@ class MainWindow : public QMainWindow {
   void resizeImageWindow();
   bool isParamValid();
   void showStatus();
+  void showOriginImage();
+  void showPreviewImage();
   void onBgReceived(const PurrmitiveColor &color,
                     const PurrmitiveContextInfo &info);
   void onStepResultReceived(const QString &svg,
