@@ -12,8 +12,6 @@ SettingDialog::SettingDialog(PurrmitiveParam* param, StopCond* stop_cond,
                              const QImage& img)
     : _thumbnail_img(img),
       _thumbnail(new QLabel),
-      _thumbnail_selector(new QPushButton(tr("Open Image"))),
-      _clear_button(new QPushButton("Clear Drawing")),
       _param(param),
       _stop_cond(stop_cond) {
   QGroupBox* upGroupBox = createUpGroupBox();
@@ -33,29 +31,25 @@ SettingDialog::SettingDialog(PurrmitiveParam* param, StopCond* stop_cond,
 
 QHBoxLayout* SettingDialog::createButtons() {
   QHBoxLayout* _buttons_layout = new QHBoxLayout;
+  QPushButton* _clear_button = new QPushButton("Clear Drawing");
   _buttons_layout->addWidget(_clear_button, 0, Qt::AlignLeft);
   QDialogButtonBox* buttons =
       new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-  connect(_clear_button, &QPushButton::clicked, this, &SettingDialog::clear);
-  connect(buttons, &QDialogButtonBox::accepted, this, &SettingDialog::confirm);
+  connect(_clear_button, &QPushButton::clicked, [=]() { emit clearDrawing(); });
+  connect(buttons, &QDialogButtonBox::accepted, [=]() {
+    qDebug() << "alpha: " << _param->alpha << ", ";
+    qDebug() << "bg: " << _param->bg << ", ";
+    qDebug() << "input: " << _param->input << ", ";
+    qDebug() << "mode: " << _param->mode << ", ";
+    qDebug() << "resize: " << _param->resize << ", ";
+    qDebug() << "size: " << _param->size << ", ";
+    // should also emit start signal
+    this->accept();
+  });
   connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
   _buttons_layout->addWidget(buttons, 0, Qt::AlignRight);
   return _buttons_layout;
-}
-
-void SettingDialog::clear() { emit clearDrawing(); }
-
-void SettingDialog::confirm() {
-  qDebug() << "alpha: " << _param->alpha << ", ";
-  qDebug() << "bg: " << _param->bg << ", ";
-  qDebug() << "input: " << _param->input << ", ";
-  qDebug() << "mode: " << _param->mode << ", ";
-  qDebug() << "resize: " << _param->resize << ", ";
-  qDebug() << "size: " << _param->size << ", ";
-  // TODO: fire a signal to main_window, main_window should hold a worker thread
-  // for this, then init rust side, get bg at outside
-  this->accept();
 }
 
 void SettingDialog::setDefaultParams() {
@@ -63,7 +57,6 @@ void SettingDialog::setDefaultParams() {
   int default_alpha = 128, default_count = 100, default_resize = 256,
       default_size = 512;
   _alpha_spin->setValue(default_alpha);
-  _count_spin->setValue(default_count);
   _param->resize = default_resize;
   _param->size = default_size;
 }
@@ -82,7 +75,12 @@ QGroupBox* SettingDialog::createUpGroupBox() {
 
   QGroupBox* _upLeftGroupBox = new QGroupBox("Select Image");
   QVBoxLayout* ul_layout = new QVBoxLayout;
+  QPushButton* _thumbnail_selector = new QPushButton(tr("Open Image"));
+  connect(_thumbnail_selector, &QPushButton::clicked,
+          [=]() { emit selectImage(); });
+
   updateImage(_thumbnail_img);
+
   ul_layout->addWidget(_thumbnail);
   ul_layout->addWidget(_thumbnail_selector);
 
@@ -118,7 +116,7 @@ QGroupBox* SettingDialog::createDownGroupBox() {
   QVBoxLayout* col1 = new QVBoxLayout;
 
   QHBoxLayout* hlayout1 = new QHBoxLayout;
-  _alpha_box = new QCheckBox();
+  QCheckBox* _alpha_box = new QCheckBox();
   _alpha_box->setChecked(false);
   _alpha_spin = new QSpinBox();
   _alpha_spin->setEnabled(false);
@@ -131,10 +129,12 @@ QGroupBox* SettingDialog::createDownGroupBox() {
   _alpha_slider->setEnabled(false);
   connect(_alpha_box, &QCheckBox::toggled, _alpha_spin, &QSpinBox::setEnabled);
   connect(_alpha_box, &QCheckBox::toggled, _alpha_slider, &QSlider::setEnabled);
+
   connect(_alpha_slider, &QSlider::valueChanged, this,
           &SettingDialog::setAlphaBySlider);
   connect(_alpha_spin, QOverload<int>::of(&QSpinBox::valueChanged), this,
           &SettingDialog::setAlphaBySpinBox);
+
   hlayout1->addWidget(_alpha_box);
   hlayout1->addWidget(new QLabel(tr("Shape alpha: ")));
   hlayout1->addWidget(_alpha_spin);
@@ -158,9 +158,11 @@ QGroupBox* SettingDialog::createDownGroupBox() {
   r1->addWidget(r1_btn);
   col2->addLayout(r1);
 
-  _count_spin = new QSpinBox();
+  QSpinBox* _count_spin = new QSpinBox();
   _count_spin->setMaximum(65535);
   _count_spin->setEnabled(false);
+  // default shape to 100
+  _count_spin->setValue(100);
 
   QHBoxLayout* r2 = new QHBoxLayout;
   QRadioButton* r2_btn = new QRadioButton("Run until shapes:");
@@ -168,6 +170,7 @@ QGroupBox* SettingDialog::createDownGroupBox() {
     _stop_cond->noStop = false;
     _stop_cond->stopScore = 1.0;
     _count_spin->setEnabled(true);
+    _stop_cond->stopShapes = _count_spin->value();
   });
   connect(_count_spin, QOverload<int>::of(&QSpinBox::valueChanged),
           [=](int val) {

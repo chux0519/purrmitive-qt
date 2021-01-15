@@ -122,7 +122,7 @@ void MainWindow::createActions() {
   file_tool_bar->setMovable(false);
   file_tool_bar->setFixedHeight(TOOLBAR_HEIGHT);
 
-  connect(_setting_dialog->_thumbnail_selector, &QPushButton::released, this,
+  connect(_setting_dialog, &SettingDialog::selectImage, this,
           &MainWindow::open);
   connect(_setting_dialog, &SettingDialog::clearDrawing, this,
           &MainWindow::reset);

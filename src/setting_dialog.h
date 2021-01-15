@@ -27,6 +27,7 @@ class SettingDialog : public QDialog {
 
  signals:
   void clearDrawing();
+  void selectImage();
 
  private:
   QGroupBox* createUpGroupBox();
@@ -36,24 +37,17 @@ class SettingDialog : public QDialog {
   void setAlphaBySpinBox(int val);
   void setAlphaBySlider(int val);
   void setDefaultParams();
-  void confirm();
-  void clear();
 
   // upleft
   QImage _thumbnail_img;
   QLabel* _thumbnail;
-  QPushButton* _thumbnail_selector;
+
   // upright
   QPushButton* _modesButtons[9];
+
   // bottomleft
-  QCheckBox* _alpha_box;
   QSpinBox* _alpha_spin;
   QSlider* _alpha_slider;
-
-  QSpinBox* _count_spin;
-
-  // clear button
-  QPushButton* _clear_button;
 
   PurrmitiveParam* _param;
   StopCond* _stop_cond;
