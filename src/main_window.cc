@@ -126,26 +126,19 @@ void MainWindow::createActions() {
           &MainWindow::open);
   connect(_setting_dialog, &SettingDialog::clearDrawing, this,
           &MainWindow::reset);
+  connect(_setting_dialog, &SettingDialog::startDrawing, this,
+          &MainWindow::start);
 
-  QMenu *edit_menu = menuBar()->addMenu(tr("&Setting"));
+  QMenu *edit_menu = menuBar()->addMenu(tr("&Setup"));
   QAction *param_action =
-      edit_menu->addAction(tr("&Params"), this, &MainWindow::openSetting);
-  QToolBar *edit_tool_bar = addToolBar(tr("Params"));
+      edit_menu->addAction(tr("&Setup"), this, &MainWindow::openSetting);
+  QToolBar *edit_tool_bar = addToolBar(tr("Setup"));
   edit_tool_bar->addAction(param_action);
   edit_tool_bar->setMovable(false);
 
   QMenu *run_menu = menuBar()->addMenu(tr("&Run"));
   QAction *start_action =
       run_menu->addAction(tr("&Start"), this, &MainWindow::start);
-  QToolBar *start_tool_bar = addToolBar(tr("Start"));
-  start_tool_bar->addAction(start_action);
-  start_tool_bar->setMovable(false);
-
-  QAction *pause_resume_action =
-      run_menu->addAction(tr("Pause/Resume"), this, &MainWindow::pauseResume);
-  QToolBar *pause_resume_tool_bar = addToolBar(tr("Pause/Resume"));
-  pause_resume_tool_bar->addAction(pause_resume_action);
-  pause_resume_tool_bar->setMovable(false);
 
   QAction *step_action =
       run_menu->addAction(tr("Step"), this, &MainWindow::step);
@@ -154,10 +147,13 @@ void MainWindow::createActions() {
   step_tool_bar->setMovable(false);
 
   QAction *stop_action =
-      run_menu->addAction(tr("Stop"), this, &MainWindow::stop);
+      run_menu->addAction(tr("Stop"), this, &MainWindow::pause);
   QToolBar *stop_tool_bar = addToolBar(tr("Stop"));
   stop_tool_bar->addAction(stop_action);
   stop_tool_bar->setMovable(false);
+
+  QAction *clear_action =
+      run_menu->addAction(tr("Clear"), this, &MainWindow::reset);
 
   connect(&_controller, &PurrmitiveController::onBgReceived, _preview,
           &Preview::setBg);
@@ -192,7 +188,7 @@ void MainWindow::onStepResultReceived(const QString &svg,
 }
 
 bool MainWindow::isParamValid() {
-  if (_param.input != nullptr) return true;
+  if (_param.input != nullptr && !_image.isNull()) return true;
   return false;
 }
 
@@ -208,26 +204,23 @@ void MainWindow::open() {
 void MainWindow::openSetting() { _setting_dialog->exec(); }
 
 void MainWindow::start() {
+  if (!isParamValid()) return;
   showPreviewImage();
   _stop_cond.noStop = true;
   step();
 }
 
-void MainWindow::step() { _controller.doStartOrStep(&_param); }
+void MainWindow::step() {
+  if (!isParamValid()) return;
+  _controller.doStartOrStep(&_param);
+}
 
-void MainWindow::stop() {
+void MainWindow::_stop() {
   _stop_cond.noStop = false;
   _controller.doStop();
 }
 
-void MainWindow::pauseResume() {
-  if (_stop_cond.noStop) {
-    _stop_cond.noStop = false;
-  } else {
-    _stop_cond.noStop = true;
-    step();
-  }
-}
+void MainWindow::pause() { _stop_cond.noStop = false; }
 
 void MainWindow::setImage(const QImage &image) {
   _image = image;
@@ -253,7 +246,7 @@ void MainWindow::resizeImageWindow() {
 }
 
 void MainWindow::reset() {
-  stop();
+  _stop();
   _preview->clearDrawing();
   showOriginImage();
   showStatus();

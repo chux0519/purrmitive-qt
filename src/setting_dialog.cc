@@ -45,6 +45,7 @@ QHBoxLayout* SettingDialog::createButtons() {
     qDebug() << "resize: " << _param->resize << ", ";
     qDebug() << "size: " << _param->size << ", ";
     // should also emit start signal
+    emit startDrawing();
     this->accept();
   });
   connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -76,6 +77,7 @@ QGroupBox* SettingDialog::createUpGroupBox() {
   QGroupBox* _upLeftGroupBox = new QGroupBox("Select Image");
   QVBoxLayout* ul_layout = new QVBoxLayout;
   QPushButton* _thumbnail_selector = new QPushButton(tr("Open Image"));
+  _thumbnail_selector->setMaximumWidth(128);
   connect(_thumbnail_selector, &QPushButton::clicked,
           [=]() { emit selectImage(); });
 
@@ -83,6 +85,7 @@ QGroupBox* SettingDialog::createUpGroupBox() {
 
   ul_layout->addWidget(_thumbnail);
   ul_layout->addWidget(_thumbnail_selector);
+  ul_layout->setAlignment(Qt::AlignHCenter);
 
   QGroupBox* _upRightGroupBox = new QGroupBox(tr("Select Shape Type"));
   QGridLayout* ur_layout = new QGridLayout;

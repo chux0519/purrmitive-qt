@@ -35,11 +35,11 @@ class MainWindow : public QMainWindow {
   void openSetting();
   void start();
   void step();
-  void stop();
-  void pauseResume();
+  void pause();
   void reset();
 
  private:
+  void _stop();
   void createActions();
   void setImage(const QImage &image);
   void resizeImageWindow();

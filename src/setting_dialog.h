@@ -28,6 +28,7 @@ class SettingDialog : public QDialog {
  signals:
   void clearDrawing();
   void selectImage();
+  void startDrawing();
 
  private:
   QGroupBox* createUpGroupBox();
