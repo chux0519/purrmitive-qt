@@ -110,8 +110,10 @@ bool MainWindow::loadImage(const QString &file) {
     _setting_dialog->updateImage(_image);
     resizeImageWindow();
 
+    emit imageSelected();
     return true;
   }
+  return false;
 }
 
 void MainWindow::createActions() {
@@ -132,6 +134,7 @@ void MainWindow::createActions() {
   save_tool_bar->setMovable(false);
   save_tool_bar->setFixedHeight(TOOLBAR_HEIGHT);
   save_tool_bar->setContentsMargins(0, 0, 40, 0);
+  save_tool_bar->setEnabled(false);
 
   connect(_setting_dialog, &SettingDialog::selectImage, this,
           &MainWindow::open);
@@ -150,18 +153,37 @@ void MainWindow::createActions() {
   QMenu *run_menu = menuBar()->addMenu(tr("&Run"));
   QAction *start_action =
       run_menu->addAction(tr("&Start"), this, &MainWindow::start);
+  QToolBar *start_tool_bar = addToolBar(tr("Start"));
+  start_tool_bar->addAction(start_action);
+  start_tool_bar->setMovable(false);
+  start_tool_bar->setEnabled(false);
+  connect(this, &MainWindow::imageSelected, start_tool_bar,
+          [=]() { start_tool_bar->setEnabled(true); });
 
   QAction *step_action =
       run_menu->addAction(tr("Step"), this, &MainWindow::step);
   QToolBar *step_tool_bar = addToolBar(tr("Step"));
   step_tool_bar->addAction(step_action);
   step_tool_bar->setMovable(false);
+  step_tool_bar->setEnabled(false);
 
   QAction *stop_action =
       run_menu->addAction(tr("Stop"), this, &MainWindow::pause);
   QToolBar *stop_tool_bar = addToolBar(tr("Stop"));
   stop_tool_bar->addAction(stop_action);
   stop_tool_bar->setMovable(false);
+  stop_tool_bar->setEnabled(false);
+
+  connect(this, &MainWindow::workerStarted, stop_tool_bar, [=]() {
+    stop_tool_bar->setEnabled(true);
+    step_tool_bar->setEnabled(false);
+    start_tool_bar->setEnabled(false);
+  });
+  connect(this, &MainWindow::workerPaused, step_tool_bar, [=]() {
+    stop_tool_bar->setEnabled(false);
+    step_tool_bar->setEnabled(true);
+    start_tool_bar->setEnabled(true);
+  });
 
   QAction *clear_action =
       run_menu->addAction(tr("Clear"), this, &MainWindow::reset);
@@ -193,8 +215,11 @@ void MainWindow::onStepResultReceived(const QString &svg,
   showStatus();
   // use timer to prevent main thread blocking
   // rate at around 60/s
-  QTimer::singleShot(17, [this]() {
-    if (shouldRun()) step();
+  QTimer::singleShot(17, [=]() {
+    if (shouldRun())
+      step();
+    else
+      emit workerPaused();
   });
 }
 
@@ -221,6 +246,7 @@ void MainWindow::start() {
   showPreviewImage();
   _stop_cond.noStop = true;
   step();
+  emit workerStarted();
 }
 
 void MainWindow::step() {
@@ -233,7 +259,10 @@ void MainWindow::_stop() {
   _controller.doStop();
 }
 
-void MainWindow::pause() { _stop_cond.noStop = false; }
+void MainWindow::pause() {
+  _stop_cond.noStop = false;
+  emit workerPaused();
+}
 
 void MainWindow::setImage(const QImage &image) {
   _image = image;

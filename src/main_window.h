@@ -30,6 +30,15 @@ class MainWindow : public QMainWindow {
   void keyPressEvent(QKeyEvent *event) override;
   void keyReleaseEvent(QKeyEvent *event) override;
 
+ signals:
+  // step button is enabled when image selected
+  void imageSelected();
+  // stop button is enabled, step button is disabled when started
+  // when worker started
+  void workerStarted();
+  // step button is enabled
+  void workerPaused();
+
  private slots:
   void open();
   void save();
