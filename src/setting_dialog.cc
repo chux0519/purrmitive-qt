@@ -190,6 +190,7 @@ QGroupBox* SettingDialog::createDownGroupBox() {
     _stop_cond->noStop = false;
     _stop_cond->stopShapes = 65535;
     r3_line->setEnabled(true);
+    _stop_cond->stopScore = r3_line->text().toDouble() / 100.0;
   });
   r3_line->setValidator(new QIntValidator(85, 100, this));
   r3_line->setEnabled(false);
