@@ -238,7 +238,11 @@ void MainWindow::open() {
   }
 }
 
-void MainWindow::save() {}
+void MainWindow::save() {
+  // QFileDialog dialog(this, tr("Save File"));
+  // initImageFileDialog(dialog, QFileDialog::AcceptSave);
+  // _preview->renderImg();
+}
 
 void MainWindow::openSetting() { _setting_dialog->exec(); }
 
@@ -281,6 +285,8 @@ void MainWindow::resizeImageWindow() {
   QSize img_size = _image.size();
   qDebug() << img_size;
   _image_label->resize(img_size);
+  _preview->setSize(img_size);
+
   QSize new_window_size(img_size.width(),
                         img_size.height() + title_bar_height + TOOLBAR_HEIGHT);
   resize(new_window_size);

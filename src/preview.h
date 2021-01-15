@@ -1,23 +1,18 @@
 #pragma once
 
-#include <QGraphicsView>
+#include <QImage>
+#include <QLabel>
+#include <vector>
 
 #include "rust_bridge.h"
 
-QT_BEGIN_NAMESPACE
-class QGraphicsSvgItem;
-class QGraphicsRectItem;
-class QGraphicsScene;
-class QSvgRenderer;
-QT_END_NAMESPACE
-
-class Preview : public QGraphicsView {
+class Preview : public QLabel {
   Q_OBJECT
  public:
   explicit Preview(QWidget *parent = nullptr);
-  void drawBackground(QPainter *p, const QRectF &rect) override;
-  QSvgRenderer *renderer() const;
   void renderCurrentState();
+  void renderImg();
+  void setSize(QSize &);
   QString getCurrentSvg();
 
  public slots:
@@ -26,8 +21,8 @@ class Preview : public QGraphicsView {
   void clearDrawing();
 
  private:
-  QGraphicsSvgItem *_svg;
-  QGraphicsRectItem *_background;
+  QImage _img;
+  QSize _size = QSize(0, 0);
   std::vector<QString> _shapes;
   PurrmitiveContextInfo _info;
   PurrmitiveColor _bg;
