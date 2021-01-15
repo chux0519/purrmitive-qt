@@ -11,7 +11,7 @@
 
 struct StopCond {
   double stopScore = 1.0;
-  int stopShapes = 65535;
+  int stopShapes = INT_MAX;
   bool noStop = true;
 };
 

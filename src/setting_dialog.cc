@@ -153,13 +153,13 @@ QGroupBox* SettingDialog::createDownGroupBox() {
   connect(r1_btn, &QRadioButton::toggled, [=]() {
     _stop_cond->noStop = true;
     _stop_cond->stopScore = 1.0;
-    _stop_cond->stopShapes = 65535;
+    _stop_cond->stopShapes = INT_MAX;
   });
   r1->addWidget(r1_btn);
   col2->addLayout(r1);
 
   QSpinBox* _count_spin = new QSpinBox();
-  _count_spin->setMaximum(65535);
+  _count_spin->setMaximum(INT_MAX);
   _count_spin->setEnabled(false);
   // default shape to 100
   _count_spin->setValue(100);
@@ -188,7 +188,7 @@ QGroupBox* SettingDialog::createDownGroupBox() {
 
   connect(r3_btn, &QRadioButton::toggled, [=]() {
     _stop_cond->noStop = false;
-    _stop_cond->stopShapes = 65535;
+    _stop_cond->stopShapes = INT_MAX;
     r3_line->setEnabled(true);
     _stop_cond->stopScore = r3_line->text().toDouble() / 100.0;
   });
@@ -199,7 +199,7 @@ QGroupBox* SettingDialog::createDownGroupBox() {
   connect(r3_line, &QLineEdit::textChanged, [=](const QString& val) {
     _stop_cond->noStop = false;
     _stop_cond->stopScore = val.toDouble() / 100.0;
-    _stop_cond->stopShapes = 65535;
+    _stop_cond->stopShapes = INT_MAX;
   });
 
   r3->addWidget(r3_btn);
