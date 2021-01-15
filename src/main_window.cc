@@ -8,6 +8,7 @@
 namespace {
 
 const int TOOLBAR_HEIGHT = 30;
+const int WINDOW_SIZE = 500;
 
 void initImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode mode) {
   static bool first_dialog = true;
@@ -43,6 +44,11 @@ MainWindow::MainWindow()
       _zstack(new QStackedWidget()) {
   _image_label->setText("Open an image\n or Drag and Drop in the window");
   _image_label->setAlignment(Qt::AlignCenter);
+  QFont f = _image_label->font();
+  f.setPixelSize(24);
+  f.setPointSize(24);
+  f.setBold(true);
+  _image_label->setFont(f);
   QPalette palette = _image_label->palette();
   palette.setColor(_image_label->backgroundRole(), Qt::gray);
   palette.setColor(_image_label->foregroundRole(), Qt::gray);
@@ -56,7 +62,7 @@ MainWindow::MainWindow()
   // init actions
   createActions();
 
-  resize(256, 256);
+  resize(WINDOW_SIZE, WINDOW_SIZE);
   setAcceptDrops(true);
 }
 
