@@ -23,6 +23,7 @@ class MainWindow : public QMainWindow {
  public:
   MainWindow();
   bool loadImage(const QString &);
+  bool saveImage(const QString &);
 
  protected:
   void dragEnterEvent(QDragEnterEvent *event) override;

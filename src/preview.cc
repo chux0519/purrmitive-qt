@@ -72,3 +72,8 @@ void Preview::clearDrawing() {
   _shapes.clear();
   renderCurrentState();
 }
+
+bool Preview::saveImg(const QString &output) {
+  if (_img.isNull()) return false;
+  return _img.save(output);
+}

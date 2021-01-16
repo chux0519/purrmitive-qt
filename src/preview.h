@@ -14,6 +14,7 @@ class Preview : public QLabel {
   void renderImg();
   void setSize(QSize &);
   QString getCurrentSvg();
+  bool saveImg(const QString &);
 
  public slots:
   void setBg(const PurrmitiveColor &color, const PurrmitiveContextInfo &info);

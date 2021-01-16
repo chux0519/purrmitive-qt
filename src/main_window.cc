@@ -245,9 +245,13 @@ void MainWindow::open() {
 }
 
 void MainWindow::save() {
-  // QFileDialog dialog(this, tr("Save File"));
-  // initImageFileDialog(dialog, QFileDialog::AcceptSave);
-  // _preview->renderImg();
+  QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "",
+                                                  tr("Images (*.png *.jpg)"));
+  saveImage(fileName);
+}
+
+bool MainWindow::saveImage(const QString &output) {
+  return _preview->saveImg(output);
 }
 
 void MainWindow::openSetting() { _setting_dialog->exec(); }
