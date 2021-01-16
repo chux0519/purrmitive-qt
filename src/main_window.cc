@@ -75,7 +75,7 @@ void MainWindow::dropEvent(QDropEvent *event) {
 
   if (event->mimeData()->hasUrls()) {
     QList<QUrl> urls = event->mimeData()->urls();
-    loadImage(urls.first().path());
+    if (loadImage(urls.first().path())) reset();
   }
 }
 

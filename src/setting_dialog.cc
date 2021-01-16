@@ -153,11 +153,6 @@ QGroupBox* SettingDialog::createDownGroupBox() {
   QHBoxLayout* r1 = new QHBoxLayout;
   QRadioButton* r1_btn = new QRadioButton("Run until stopped");
   r1_btn->setChecked(true);
-  connect(r1_btn, &QRadioButton::toggled, [=]() {
-    _stop_cond->noStop = true;
-    _stop_cond->stopScore = 1.0;
-    _stop_cond->stopShapes = INT_MAX;
-  });
   r1->addWidget(r1_btn);
   col2->addLayout(r1);
 
@@ -169,18 +164,7 @@ QGroupBox* SettingDialog::createDownGroupBox() {
 
   QHBoxLayout* r2 = new QHBoxLayout;
   QRadioButton* r2_btn = new QRadioButton("Run until shapes:");
-  connect(r2_btn, &QRadioButton::toggled, [=]() {
-    _stop_cond->noStop = false;
-    _stop_cond->stopScore = 1.0;
-    _count_spin->setEnabled(true);
-    _stop_cond->stopShapes = _count_spin->value();
-  });
-  connect(_count_spin, QOverload<int>::of(&QSpinBox::valueChanged),
-          [=](int val) {
-            _stop_cond->noStop = false;
-            _stop_cond->stopScore = 1.0;
-            _stop_cond->stopShapes = val;
-          });
+
   r2->addWidget(r2_btn);
   r2->addWidget(_count_spin);
   col2->addLayout(r2);
@@ -189,16 +173,39 @@ QGroupBox* SettingDialog::createDownGroupBox() {
   QRadioButton* r3_btn = new QRadioButton("Run until score:");
   QLineEdit* r3_line = new QLineEdit("95");
 
-  connect(r3_btn, &QRadioButton::toggled, [=]() {
-    _stop_cond->noStop = false;
-    _stop_cond->stopShapes = INT_MAX;
-    r3_line->setEnabled(true);
-    _stop_cond->stopScore = r3_line->text().toDouble() / 100.0;
-  });
   r3_line->setValidator(new QIntValidator(85, 100, this));
   r3_line->setEnabled(false);
   r3_line->setMaximumWidth(30);
 
+  connect(r1_btn, &QRadioButton::toggled, [=]() {
+    _stop_cond->noStop = true;
+    _stop_cond->stopScore = 1.0;
+    _stop_cond->stopShapes = INT_MAX;
+    _count_spin->setEnabled(false);
+    r3_line->setEnabled(false);
+  });
+
+  connect(r2_btn, &QRadioButton::toggled, [=]() {
+    _stop_cond->noStop = false;
+    _stop_cond->stopScore = 1.0;
+    _count_spin->setEnabled(true);
+    r3_line->setEnabled(false);
+    _stop_cond->stopShapes = _count_spin->value();
+  });
+  connect(_count_spin, QOverload<int>::of(&QSpinBox::valueChanged),
+          [=](int val) {
+            _stop_cond->noStop = false;
+            _stop_cond->stopScore = 1.0;
+            _stop_cond->stopShapes = val;
+          });
+
+  connect(r3_btn, &QRadioButton::toggled, [=]() {
+    _stop_cond->noStop = false;
+    _stop_cond->stopShapes = INT_MAX;
+    r3_line->setEnabled(true);
+    _count_spin->setEnabled(false);
+    _stop_cond->stopScore = r3_line->text().toDouble() / 100.0;
+  });
   connect(r3_line, &QLineEdit::textChanged, [=](const QString& val) {
     _stop_cond->noStop = false;
     _stop_cond->stopScore = val.toDouble() / 100.0;
