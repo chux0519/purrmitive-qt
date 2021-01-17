@@ -242,6 +242,7 @@ void MainWindow::open() {
   while (dialog.exec() == QDialog::Accepted &&
          !loadImage(dialog.selectedFiles().first())) {
   }
+  reset();
 }
 
 void MainWindow::save() {
