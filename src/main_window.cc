@@ -246,9 +246,13 @@ void MainWindow::open() {
 }
 
 void MainWindow::save() {
-  QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "",
-                                                  tr("Images (*.png *.jpg)"));
-  saveImage(fileName);
+  QString file_name = QFileDialog::getSaveFileName(this, tr("Save File"), "",
+                                                   tr("Images (*.png *.jpg)"));
+  if (saveImage(file_name)) {
+    QMessageBox msg_box;
+    msg_box.setText(QString("Result has been saved: %1").arg(file_name));
+    msg_box.exec();
+  }
 }
 
 bool MainWindow::saveImage(const QString &output) {
